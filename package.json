@@ -1,0 +1,29 @@
+{
+    "name": "Domino-Server",
+    "private": true,
+    "version": "0.0.0",
+    "description": "APIs server of Domino. ",
+    "dependencies": {
+        "sails": "~0.9.7",
+        "grunt": "~0.4.1",
+        "sails-mongo": "~0.9.5",
+        "ejs": "~0.8.4",
+        "optimist": "~0.3.4"
+    },
+    "devDependencies": {
+        "sails": "~0.9.7",
+        "sails-mongo": "~0.9.5",
+        "ejs": "~0.8.4"
+    },
+    "scripts": {
+        "start": "node app.js",
+        "debug": "node debug app.js"
+    },
+    "main": "app.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/wandoulabs/Domino-Server.git"
+    },
+    "author": "frontend@wandoujia.com",
+    "license": "MIT"
+}
