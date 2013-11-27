@@ -8,12 +8,33 @@
         "grunt": "~0.4.1",
         "sails-mongo": "~0.9.5",
         "ejs": "~0.8.4",
-        "optimist": "~0.3.4"
+        "optimist": "~0.3.4",
+        "ldapauth": "~2.2.4"
     },
     "devDependencies": {
         "sails": "~0.9.7",
         "sails-mongo": "~0.9.5",
-        "ejs": "~0.8.4"
+        "ejs": "~0.8.4",
+        "matchdep" : "~0.1.2",
+        "ldapauth": "~2.2.4",
+        "grunt" : "~0.4.1",
+        "grunt-open" : "~0.2.2",
+        "grunt-contrib-copy" : "~0.4.0",
+        "grunt-contrib-clean" : "~0.5.0",
+        "grunt-contrib-watch" : "~0.5.3",
+        "grunt-concurrent" : "~0.3.1",
+        "grunt-contrib-jshint": "~0.7.0",
+        "grunt-bump" : "~0.0.11",
+        "grunt-karma" : "~0.7.1",
+        "karma" : "~0.10.1",
+        "karma-script-launcher" : "~0.1.0",
+        "karma-mocha" : "~0.1.0",
+        "karma-coverage" : "~0.1.0",
+        "karma-junit-reporter" : "~0.1.0",
+        "karma-requirejs" : "~0.1.0",
+        "grunt-conventional-changelog" : "~1.0.0",
+        "grunt-nodemon" : "~0.1.2",
+        "grunt-node-inspector" : "~0.1.2"
     },
     "scripts": {
         "start": "node app.js",
