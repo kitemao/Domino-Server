@@ -9,14 +9,14 @@
         "sails-mongo": "~0.9.5",
         "ejs": "~0.8.4",
         "optimist": "~0.3.4",
-        "ldapauth": "~2.2.4"
+        "git-wrapper": "~0.1.1"
     },
     "devDependencies": {
         "sails": "~0.9.7",
         "sails-mongo": "~0.9.5",
         "ejs": "~0.8.4",
         "matchdep" : "~0.1.2",
-        "ldapauth": "~2.2.4",
+        "git-wrapper": "~0.1.1",
         "grunt" : "~0.4.1",
         "grunt-open" : "~0.2.2",
         "grunt-contrib-copy" : "~0.4.0",
