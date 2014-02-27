@@ -17,7 +17,7 @@ module.exports = function (grunt) {
         },
         open: {
             server : {
-                path : 'http://127.0.0.1:1337/debug?port=5858',
+                path : 'http://127.0.0.1:8889/debug?port=5859',
                 app : 'Google Chrome Canary'
             }
         },
@@ -51,7 +51,7 @@ module.exports = function (grunt) {
         },
         concurrent : {
             server : {
-                tasks : ['nodemon:dev', 'node-inspector', 'watch'],
+                tasks : ['nodemon:dev', 'node-inspector', 'watch', 'open'],
                 options : {
                     logConcurrentOutput: true
                 }
@@ -71,8 +71,7 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('server', [
-        'concurrent:server',
-        'open'
+        'concurrent:server'
     ]);
 
     grunt.registerTask(['update'], [
