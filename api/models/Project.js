@@ -7,30 +7,24 @@
  */
 
 module.exports = {
-    attributes : {
-        id : 'integer',
-        name : {
-            type : 'string',
-            required : true,
-            notEmpty : true
-        },
-        alias : {
-            type : 'string'
-        },
-        gitURL :{
-            type : 'string',
-            required : true,
-            notEmpty : true
-        },
-        owner : {
-            type : 'string',
-            required : true,
-            notEmpty : true
-        },
-        isActive : {
-            type : 'string',
-            required : true,
-            notEmpty : true
+    enums : {
+        TYPE : {
+            GITHUB : 0,
+            SELF_HOST_GIT : 1
         }
+    },
+    attributes : {
+        title : 'STRING',
+        description : 'STRING',
+        url : 'STRING',
+        type : 'INTEGER',
+        stagingServer : 'ARRAY',
+        productionServer : 'ARRAY',
+        notificationList : 'ARRAY',
+        manager : 'ARRAY',
+        designer : 'ARRAY',
+        develpoer : 'ARRAY',
+        lastStagingBuild : 'STRING',
+        lastProdctuionBuild : 'STRING'
     }
 };

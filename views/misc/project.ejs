@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<task name="deploy_<%= title %>">
+    <public>
+        <service><%= title %></service>
+        <source_dir>/home/work/srcs/$service</source_dir>
+        <install_dir>/home/work/static/$service</install_dir>
+        <backup_dir>/home/work/backup/$service</backup_dir>
+        <deploy_dir>/home/work/dist/$service</deploy_dir>
+        <tmp_dir>$backup_dir/tmp</tmp_dir>
+        <mailto>
+            <%= receivers.join(',') %>
+        </mailto>
+    </public>
+    <job name="deploy_<%= title %>">
+        <hosts><%= servers.join(',') %></hosts>
+        <action name="compile">
+            <work_space>$source_dir</work_space>
+            <git_clone>git clone <%= url %> $source_dir</git_clone>
+            <compile_cmd><![CDATA[cd $source_dir; npm i && bower install && grunt build:production]]></compile_cmd>
+        </action>
+        <action name="deploy">
+            <deploy_dir>$deploy_dir</deploy_dir>
+            <deploy_items>$source_dir/dist/*</deploy_items>
+        </action>
+    </job>
+</task>

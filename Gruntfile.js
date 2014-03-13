@@ -40,8 +40,8 @@ module.exports = function (grunt) {
         },
         nodemon : {
             dev : {
+                script : 'app.js',
                 options : {
-                    file : 'app.js',
                     nodeArgs : ['--debug=5859'],
                     env : {
                         PORT : '1337'
