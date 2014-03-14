@@ -1,0 +1,6 @@
+module.exports = {
+    SUCCESS : 200,
+
+    RESOURCE_DUPLICATED : 506,
+    COMMUNICATION_WITH_THIRDPARTY_FAILED : 507
+};
