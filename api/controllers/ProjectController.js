@@ -48,9 +48,9 @@ module.exports = {
                         description : data.description,
                         url : data.url,
                         type : parseInt(data.type, 10),
-                        stagingServers : data.stagingServers.split('|'),
-                        productionServers : data.productionServers.split('|'),
-                        notificationList : data.notificationList.split('|')
+                        stagingServers : data.stagingServers,
+                        productionServers : data.productionServers,
+                        notificationList : data.notificationList
                     }).done(function (err, project) {
                         if (!err) {
                             res.send({
