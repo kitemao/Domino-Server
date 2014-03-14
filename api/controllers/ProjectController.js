@@ -10,7 +10,7 @@ var newProjectTpl = ejs.compile(fs.readFileSync(__dirname + '/../../views/misc/p
 var updateBuildingScriptAsync = function (data) {
     var script = newProjectTpl({
         title : data.title,
-        servers : data.stagingServer,
+        servers : data.stagingServers,
         receivers : data.notificationList.map(function (item) {
             return item + '@wandoujia.com';
         }),
@@ -27,8 +27,8 @@ module.exports = {
     },
     create : function (req, res) {
         var data = req.body;
-        data.stagingServer = data.stagingServer.split('|');
-        data.productionServer = data.productionServer.split('|');
+        data.stagingServers = data.stagingServers.split('|');
+        data.productionServers = data.productionServers.split('|');
         data.notificationList = data.notificationList.split('|');
 
         Project.findOne({
@@ -48,8 +48,8 @@ module.exports = {
                         description : data.description,
                         url : data.url,
                         type : parseInt(data.type, 10),
-                        stagingServer : data.stagingServer.split('|'),
-                        productionServer : data.productionServer.split('|'),
+                        stagingServers : data.stagingServers.split('|'),
+                        productionServers : data.productionServers.split('|'),
                         notificationList : data.notificationList.split('|')
                     }).done(function (err, project) {
                         if (!err) {
