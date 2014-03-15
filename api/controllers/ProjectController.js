@@ -46,8 +46,27 @@ var updateBuildingScriptAsync = function (data) {
 
 module.exports = {
     _config : {},
-    get : function () {
-
+    find : function (req, res) {
+        var id = req.param('id');
+        if (id !== undefined) {
+            Project.findOne({
+                id : id
+            }).then(function (project) {
+                if (project !== undefined) {
+                    res.send({
+                        body : project
+                    });
+                } else {
+                    res.send({});
+                }
+            });
+        } else {
+            Project.find().then(function (projects) {
+                res.send({
+                    body : projects
+                })
+            });
+        }
     },
     create : function (req, res) {
         var data = req.body;
