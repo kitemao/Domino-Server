@@ -1,13 +1,20 @@
 var fs = require('fs');
+
 var ejs = require('ejs');
+var Q = require('q');
+var request = require('request');
 
 var StatusCode = require('../../utils/StatusCodeMapping');
+var Msg = require('../../utils/MsgMapping');
+var Jenkins = require('../../thirdparty/jenkins');
 
 var newProjectTpl = ejs.compile(fs.readFileSync(__dirname + '/../../views/misc/project.ejs', {
     encoding : 'utf8'
 }));
 
 var updateBuildingScriptAsync = function (data) {
+    var deferred = Q.defer();
+
     var script = newProjectTpl({
         title : data.title,
         servers : data.stagingServers,
@@ -17,13 +24,49 @@ var updateBuildingScriptAsync = function (data) {
         url : data.url
     });
 
-    // TODO
+    request({
+        method : 'POST',
+        url : 'http://deploy.wandoulabs.com/apisave',
+        form : {
+            username : 'wangye.zhao',
+            password : 'Zwy13603614886',
+            title : 'conf.test/Frontend/' + data.title + '/deploy-staging.xml',
+            content : script
+        }
+    }, function (err, res, body) {
+        if (res.statusCode === 200) {
+            deferred.resolve(body);
+        } else {
+            deferred.reject(new Error(body));
+        }
+    });
+
+    return deferred.promise;
 };
 
 module.exports = {
     _config : {},
-    get : function () {
-
+    find : function (req, res) {
+        var id = req.param('id');
+        if (id !== undefined) {
+            Project.findOne({
+                id : id
+            }).then(function (project) {
+                if (project !== undefined) {
+                    res.send({
+                        body : project
+                    });
+                } else {
+                    res.send({});
+                }
+            });
+        } else {
+            Project.find().then(function (projects) {
+                res.send({
+                    body : projects
+                })
+            });
+        }
     },
     create : function (req, res) {
         var data = req.body;
@@ -36,36 +79,51 @@ module.exports = {
         }).done(function (err, project) {
             if (project !== undefined) {
                 res.send({
-                    status : StatusCode.RESOURCE_DUPLICATED,
                     err : {
-                        msg : 'REPO_ALREADY_EXISTS'
+                        parameter : ['title'],
+                        msg : [Msg.REPO_ALREADY_EXISTS]
                     }
-                });
+                }, StatusCode.RESOURCE_DUPLICATED);
             } else {
-                updateBuildingScriptAsync(data).done(function () {
-                    Project.create({
-                        title : data.title,
-                        description : data.description,
-                        url : data.url,
-                        type : parseInt(data.type, 10),
-                        stagingServers : data.stagingServers,
-                        productionServers : data.productionServers,
-                        notificationList : data.notificationList
-                    }).done(function (err, project) {
-                        if (!err) {
-                            res.send({
-                                status : StatusCode.SUCCESS,
-                                body : project
-                            });
-                        }
+                updateBuildingScriptAsync(data).then(function () {
+                    Jenkins.createJobAsync(data).then(function () {
+                        Project.create({
+                            title : data.title,
+                            description : data.description,
+                            url : data.url,
+                            type : parseInt(data.type, 10),
+                            stagingServers : data.stagingServers,
+                            productionServers : data.productionServers,
+                            notificationList : data.notificationList
+                        }).then(function (err, project) {
+                            // if (!err) {
+                                res.send({
+                                    body : project
+                                }, StatusCode.SUCCESS);
+                            // } else {
+                            //     // if () {
+                            //     //     res.send({
+                            //     //         err : {
+                            //     //             parameter : [],
+                            //     //             msg : []
+                            //     //         }
+                            //     //     }, StatusCode.FORM_VALIDATION_ERROR);
+                            //     // }
+                            // }
+                        });
+                    }, function (err) {
+                        res.send({
+                            err : {
+                                msg : err.toString()
+                            }
+                        }, StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED);
                     });
-                }).fail(function (err) {
+                }, function (err) {
                     res.send({
-                        status : StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED,
                         err : {
-                            msg : err.msg
+                            msg : err.toString()
                         }
-                    });
+                    }, StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED);
                 });
             }
         });
