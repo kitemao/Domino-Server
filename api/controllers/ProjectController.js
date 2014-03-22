@@ -8,7 +8,7 @@ var StatusCode = require('../../utils/StatusCodeMapping');
 var Msg = require('../../utils/MsgMapping');
 var Jenkins = require('../../thirdparty/jenkins/jenkins');
 
-var newProjectTpl = ejs.compile(fs.readFileSync(__dirname + '/../../views/misc/project.ejs', {
+var newProjectTpl = ejs.compile(fs.readFileSync(__dirname + '/../../thirdparty/wandoulabs/project.ejs', {
     encoding : 'utf8'
 }));
 
