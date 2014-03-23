@@ -1,12 +1,13 @@
 /**
  * Local environment settings
  *
- * While you're developing your app, this config file should include
+ * While you're DEVELOPING your app, this config file should include
  * any settings specifically for your development computer (db passwords, etc.)
- * When you're ready to deploy your app in production, you can use this file
- * for configuration options on the server where it will be deployed.
- *
- *
+ * 
+ * When you're ready to deploy your app in PRODUCTION, you can always use this file
+ * for configuration options specific to the server where the app will be deployed. 
+ * But environment variables are usually the best way to handle production settings.
+ * 
  * PLEASE NOTE: 
  *		This file is included in your .gitignore, so if you're using git 
  *		as a version control solution for your Sails app, keep in mind that
@@ -23,6 +24,18 @@
  */
 
 module.exports = {
+
+  // Your SSL certificate and key, if you want to be able to serve HTTP responses 
+  // over https:// and/or use websockets over the wss:// protocol
+  // (recommended for HTTP, strongly encouraged for WebSockets)
+  //
+  // In this example, we'll assume you created a folder in your project, `config/ssl`
+  // and dumped your certificate/key files there:
+  // ssl: {
+  //   ca: require('fs').readFileSync(__dirname + './ssl/my_apps_ssl_gd_bundle.crt'),
+  //   key: require('fs').readFileSync(__dirname + './ssl/my_apps_ssl.key'),
+  //   cert: require('fs').readFileSync(__dirname + './ssl/my_apps_ssl.crt')
+  // },
 
 
   // The `port` setting determines which TCP port your app will be deployed on

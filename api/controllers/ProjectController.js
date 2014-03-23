@@ -6,9 +6,9 @@ var request = require('request');
 
 var StatusCode = require('../../utils/StatusCodeMapping');
 var Msg = require('../../utils/MsgMapping');
-var Jenkins = require('../../thirdparty/jenkins');
+var Jenkins = require('../../thirdparty/jenkins/jenkins');
 
-var newProjectTpl = ejs.compile(fs.readFileSync(__dirname + '/../../views/misc/project.ejs', {
+var newProjectTpl = ejs.compile(fs.readFileSync(__dirname + '/../../thirdparty/wandoulabs/project.ejs', {
     encoding : 'utf8'
 }));
 
@@ -46,6 +46,9 @@ var updateBuildingScriptAsync = function (data) {
 
 module.exports = {
     _config : {},
+    build : function (req, res) {
+        var title = req.params.title;
+    },
     find : function (req, res) {
         var id = req.param('id');
         if (id !== undefined) {
@@ -74,6 +77,22 @@ module.exports = {
         data.productionServers = data.productionServers.split('|');
         data.notificationList = data.notificationList.split('|');
 
+        var createProject = function () {
+            Project.create({
+                title : data.title,
+                description : data.description,
+                url : data.url,
+                type : parseInt(data.type, 10),
+                stagingServers : data.stagingServers,
+                productionServers : data.productionServers,
+                notificationList : data.notificationList
+            }).then(function (project) {
+                res.json({
+                    body : project
+                }, StatusCode.SUCCESS);
+            });
+        };
+
         Project.findOne({
             url : data.url
         }).done(function (err, project) {
@@ -85,31 +104,18 @@ module.exports = {
                     }
                 }, StatusCode.RESOURCE_DUPLICATED);
             } else {
-                updateBuildingScriptAsync(data).then(function () {
-                    Jenkins.createJobAsync(data).then(function () {
-                        Project.create({
-                            title : data.title,
-                            description : data.description,
-                            url : data.url,
-                            type : parseInt(data.type, 10),
-                            stagingServers : data.stagingServers,
-                            productionServers : data.productionServers,
-                            notificationList : data.notificationList
-                        }).then(function (err, project) {
-                            // if (!err) {
-                                res.send({
-                                    body : project
-                                }, StatusCode.SUCCESS);
-                            // } else {
-                            //     // if () {
-                            //     //     res.send({
-                            //     //         err : {
-                            //     //             parameter : [],
-                            //     //             msg : []
-                            //     //         }
-                            //     //     }, StatusCode.FORM_VALIDATION_ERROR);
-                            //     // }
-                            // }
+                if (process.env.NODE_ENV === 'test') {
+                    createProject.call(this);
+                } else {
+                    updateBuildingScriptAsync(data).then(function () {
+                        Jenkins.createJobAsync(data).then(function () {
+                            createProject.call(this);
+                        }, function (err) {
+                            res.send({
+                                err : {
+                                    msg : err.toString()
+                                }
+                            }, StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED);
                         });
                     }, function (err) {
                         res.send({
@@ -118,13 +124,7 @@ module.exports = {
                             }
                         }, StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED);
                     });
-                }, function (err) {
-                    res.send({
-                        err : {
-                            msg : err.toString()
-                        }
-                    }, StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED);
-                });
+                }
             }
         });
     }

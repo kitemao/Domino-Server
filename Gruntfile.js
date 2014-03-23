@@ -67,6 +67,14 @@ module.exports = function (grunt) {
                     'stack-trace-limit' : 4
                 }
             }
+        },
+        mochaTest : {
+          test : {
+            options : {
+              reporter : 'spec'
+            },
+            src : ['test/**/*.js']
+          }
         }
     });
 

@@ -1,10 +1,4 @@
 module.exports = {
-    enums : {
-        TYPE : {
-            GITHUB : 0,
-            SELF_HOST_GIT : 1
-        }
-    },
     attributes : {
         title : 'STRING',
         description : 'STRING',
