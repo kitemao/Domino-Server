@@ -4,18 +4,20 @@ var ejs = require('ejs');
 var Q = require('q');
 var request = require('request');
 
+var config = require('../../config');
+
 var newJenkinsJobTpl = ejs.compile(fs.readFileSync(__dirname + '/jenkinsJob.ejs', {
     encoding : 'utf8'
 }));
 
-var API_PREFIX = 'http://10.0.22.110:8080';
+var API_PREFIX = config.JENKINS_API_URL;
 
 var auth = {
-    user : 'wangye.zhao',
-    pass : 'Zwy13603614886'
+    user : config.PUBLIC_LDAP_AUTH.USERNAME,
+    pass : config.PUBLIC_LDAP_AUTH.PASSWORD
 };
 
-requestJenkins = function () {
+var requestJenkins = function () {
     arguments[0].url = API_PREFIX + arguments[0].url;
 
     request.apply(this, arguments);

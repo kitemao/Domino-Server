@@ -1,0 +1,13 @@
+ language: node_js
+ node_js:
+   - "0.10"
+ before_script:
+   - npm install -g grunt-cli bower
+   - npm install
+   - gem install compass --pre
+   - bower install
+ notifications:
+   email:
+     - frontend-team@wandoujia.com
+     - wangye.zhao@wandoujia.com
+     - miaojian@wandoujia.com
