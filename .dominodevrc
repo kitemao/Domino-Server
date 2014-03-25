@@ -1,7 +1,0 @@
-{
-    "PUBLIC_LDAP_AUTH" : {
-        "USERNAME" : "",
-        "PASSWORD" : ""
-    },
-    "JENKINS_API_URL" : "http://10.0.22.110:8080"
-}
