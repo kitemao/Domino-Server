@@ -1,3 +1,4 @@
+/*global Project*/
 var StatusCode = require('../../utils/StatusCodeMapping');
 var Msg = require('../../utils/MsgMapping');
 var Jenkins = require('../../thirdparty/jenkins/jenkins');

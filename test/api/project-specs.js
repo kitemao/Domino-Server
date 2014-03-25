@@ -1,3 +1,4 @@
+/*global Project*/
 var request = require('supertest');
 var Sails = require('sails');
 
@@ -15,6 +16,12 @@ describe('Test API suite: /api/project', function () {
                 level : 'error'
             }
         }, function (err, sails) {
+            if (err) {
+                console.error(err);
+            } else {
+                console.log('Server lifted. ');
+            }
+
             app = sails;
             done(err, sails);
         });
@@ -25,7 +32,15 @@ describe('Test API suite: /api/project', function () {
             id : projectId
         }).done(function (err, project) {
             project.destroy(function () {
-                app.lower(done);
+                app.lower(function (err) {
+                    if (err) {
+                        console.error(err);
+                    } else {
+                        console.log('Server lowered. ');
+                    }
+
+                    done(err);
+                });
             });
         });
     });
