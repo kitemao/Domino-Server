@@ -100,6 +100,11 @@ module.exports = function (grunt) {
         'watch'
     ]);
 
+    grunt.registerTask('test:travis', [
+        'jshint',
+        'mochaTest'
+    ]);
+
     grunt.registerTask(['update'], [
         'bump-only:patch',
         'changelog',
