@@ -1,48 +1,7 @@
-var fs = require('fs');
-
-var ejs = require('ejs');
-var Q = require('q');
-var request = require('request');
-
 var StatusCode = require('../../utils/StatusCodeMapping');
 var Msg = require('../../utils/MsgMapping');
 var Jenkins = require('../../thirdparty/jenkins/jenkins');
-
-var newProjectTpl = ejs.compile(fs.readFileSync(__dirname + '/../../thirdparty/wandoulabs/project.ejs', {
-    encoding : 'utf8'
-}));
-
-var updateBuildingScriptAsync = function (data) {
-    var deferred = Q.defer();
-
-    var script = newProjectTpl({
-        title : data.title,
-        servers : data.stagingServers,
-        receivers : data.notificationList.map(function (item) {
-            return item + '@wandoujia.com';
-        }),
-        url : data.url
-    });
-
-    request({
-        method : 'POST',
-        url : 'http://deploy.wandoulabs.com/apisave',
-        form : {
-            username : 'wangye.zhao',
-            password : 'Zwy13603614886',
-            title : 'conf.test/Frontend/' + data.title + '/deploy-staging.xml',
-            content : script
-        }
-    }, function (err, res, body) {
-        if (res.statusCode === 200) {
-            deferred.resolve(body);
-        } else {
-            deferred.reject(new Error(body));
-        }
-    });
-
-    return deferred.promise;
-};
+var WandouLabs = require('../../thirdparty/wandoulabs/wandoulabs');
 
 module.exports = {
     _config : {},
@@ -67,7 +26,7 @@ module.exports = {
             Project.find().then(function (projects) {
                 res.send({
                     body : projects
-                })
+                });
             });
         }
     },
@@ -107,7 +66,7 @@ module.exports = {
                 if (process.env.NODE_ENV === 'test') {
                     createProject.call(this);
                 } else {
-                    updateBuildingScriptAsync(data).then(function () {
+                    WandouLabs.updateBuildingScriptAsync(data).then(function () {
                         Jenkins.createJobAsync(data).then(function () {
                             createProject.call(this);
                         }, function (err) {

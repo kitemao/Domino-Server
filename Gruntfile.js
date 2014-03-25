@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = function (grunt) {
     // load all grunt tasks
     require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
@@ -14,6 +12,16 @@ module.exports = function (grunt) {
     grunt.initConfig({
         paths : pathConfig,
         watch : {
+            test : {
+                files : [
+                    '**/*.js',
+                    '!node_modules/**/*.*',
+                ],
+                tasks : ['jshint:test', 'mochaTest'],
+                options : {
+                    spawn : false
+                }
+            }
         },
         open: {
             server : {
@@ -51,7 +59,7 @@ module.exports = function (grunt) {
         },
         concurrent : {
             server : {
-                tasks : ['nodemon:dev', 'node-inspector', 'watch', 'open'],
+                tasks : ['nodemon:dev', 'node-inspector', 'open'],
                 options : {
                     logConcurrentOutput: true
                 }
@@ -69,17 +77,32 @@ module.exports = function (grunt) {
             }
         },
         mochaTest : {
-          test : {
+            test : {
+                options : {
+                    reporter : 'spec'
+                },
+                src : ['test/**/*.js']
+            }
+        },
+        jshint : {
             options : {
-              reporter : 'spec'
+                ignores : ['**/node_modules/**/*.js']
             },
-            src : ['test/**/*.js']
-          }
+            test : ['**/*.js']
         }
     });
 
     grunt.registerTask('server', [
         'concurrent:server'
+    ]);
+
+    grunt.registerTask('server:test', [
+        'watch'
+    ]);
+
+    grunt.registerTask('test:travis', [
+        'jshint:test',
+        'mochaTest:test'
     ]);
 
     grunt.registerTask(['update'], [

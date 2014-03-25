@@ -1,4 +1,4 @@
-var request = require('supertest')
+var request = require('supertest');
 var Sails = require('sails');
 
 request = request('http://localhost:1337');
