@@ -101,8 +101,8 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('test:travis', [
-        'jshint',
-        'mochaTest'
+        'jshint:test',
+        'mochaTest:test'
     ]);
 
     grunt.registerTask(['update'], [
