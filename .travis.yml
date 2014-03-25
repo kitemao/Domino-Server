@@ -4,8 +4,6 @@
  before_script:
    - npm install -g grunt-cli
    - npm install
-   - gem install compass --pre
-   - bower install
  notifications:
    email:
      - frontend-team@wandoujia.com
