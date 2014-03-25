@@ -15,8 +15,6 @@ describe('Test API suite: /api/project', function () {
                 level : 'error'
             }
         }, function (err, sails) {
-            console.log(err);
-            console.error(11111111111);
             app = sails;
             done(err, sails);
         });
