@@ -5,8 +5,6 @@
    - mongodb
  before_script:
    - npm install -g grunt-cli
-   - npm install
-   - node app.js
  notifications:
    email:
      - frontend-team@wandoujia.com
