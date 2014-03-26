@@ -2,74 +2,73 @@ var fs = require('fs');
 
 var ejs = require('ejs');
 var Q = require('q');
-var request = require('request');
 
 var config = require('../../config');
+var JenkinsAPI = require('./jenkins-api')
+                    .setAuth(config.PUBLIC_LDAP_AUTH.USERNAME, config.PUBLIC_LDAP_AUTH.PASSWORD)
+                    .setAPIPrefix(config.JENKINS_API_URL);
 
-var newJenkinsJobTpl = ejs.compile(fs.readFileSync(__dirname + '/jenkinsJob.ejs', {
-    encoding : 'utf8'
-}));
-
-var API_PREFIX = config.JENKINS_API_URL;
-
-var auth = {
-    user : config.PUBLIC_LDAP_AUTH.USERNAME,
-    pass : config.PUBLIC_LDAP_AUTH.PASSWORD
-};
-
-var requestJenkins = function () {
-    arguments[0].url = API_PREFIX + arguments[0].url;
-
-    request.apply(this, arguments);
-};
+var newJenkinsJobTpl = ejs.compile(fs.readFileSync(__dirname + '/jenkinsJob.ejs', 'utf8'));
 
 module.exports = {
-    createJobAsync : function (data) {
+    createJobsAsync : function (data) {
         var deferred = Q.defer();
 
-        var script = newJenkinsJobTpl({
-            description : data.description,
-            title : data.title,
-            taskName : 'deploy-staging'
-        });
+        var staingJobName = data.title + '-deploy-staging';
+        var productionJobName = data.title + '-deploy-production';
 
-        requestJenkins({
-            method : 'POST',
-            url : '/createItem',
-            auth : auth,
-            qs : {
-                name : 'data.title'
-            },
-            headers : {
-                'Content-Type' : 'text/xml'
-            },
-            body : script
-        }, function (err, res, body) {
-            if (res.statusCode === 200) {
-                deferred.resolve(body);
-            } else {
-                deferred.reject(new Error(body));
-            }
+        Q.all([
+            JenkinsAPI.createJobAsync(staingJobName, newJenkinsJobTpl({
+                description : data.description,
+                title : data.title,
+                taskName : 'deploy-staging'
+            })),
+            JenkinsAPI.createJobAsync(productionJobName, newJenkinsJobTpl({
+                description : data.description,
+                title : data.title,
+                taskName : 'deploy-production'
+            }))
+        ]).then(function () {
+            Q.all([
+                JenkinsAPI.addJobToView(config.JENKINS_VIEW_NAME, staingJobName),
+                JenkinsAPI.addJobToView(config.JENKINS_VIEW_NAME, productionJobName)
+            ]).then(function () {
+                deferred.resolve();
+            }, function (err) {
+                deferred.reject(err);
+            });
+        }, function (err) {
+            deferred.reject(err);
         });
 
         return deferred.promise;
     },
-    deleteJobAsync : function () {
-        // TODO
-    },
-    runJobAsync : function (jobName) {
+    deleteJobsAsync : function (data) {
         var deferred = Q.defer();
 
-        requestJenkins({
-            method : 'POST',
-            url : '/' + jobName + '/build',
-            auth : auth
-        }, function (err, res, body) {
-            if (res.statusCode === 200) {
-                deferred.resolve(body);
-            } else {
-                deferred.reject(new Error(body));
-            }
+        Q.all([
+            JenkinsAPI.deleteJobAsync(data.title + '-deploy-staging'),
+            JenkinsAPI.deleteJobAsync(data.title + '-deploy-production'),
+        ]).then(function () {
+            deferred.resolve();
+        }, function (err) {
+            deferred.reject(err);
         });
+
+        return deferred.promise;
+    },
+    runJobAsync : function (title, type) {
+        var deferred = Q.defer();
+
+        JenkinsAPI.runJobAsync(title + '-deploy-' + type).then(function (location) {
+            this.watchTask
+            deferred.resolve({
+                location : location
+            });
+        }, function (err) {
+            deferred.reject(err);
+        });
+
+        return deferred.promise;
     }
 };

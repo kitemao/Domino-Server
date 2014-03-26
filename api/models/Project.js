@@ -6,13 +6,31 @@ module.exports = {
         }
     },
     attributes : {
-        title : 'STRING',
+        title : {
+            type : 'STRING',
+            required : true
+        },
         description : 'STRING',
-        url : 'STRING',
-        type : 'INTEGER',
-        stagingServer : 'ARRAY',
-        productionServer : 'ARRAY',
-        notificationList : 'ARRAY',
+        url : {
+            type : 'STRING',
+            required : true
+        },
+        type : {
+            type : 'INTEGER',
+            required : true
+        },
+        stagingServers : {
+            type : 'ARRAY',
+            required : true
+        },
+        productionServers : {
+            type : 'ARRAY',
+            required : true
+        },
+        notificationList : {
+            type : 'ARRAY',
+            required : true
+        },
         manager : 'ARRAY',
         designer : 'ARRAY',
         develpoer : 'ARRAY',
