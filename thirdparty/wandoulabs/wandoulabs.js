@@ -11,7 +11,7 @@ var newProjectTpl = ejs.compile(fs.readFileSync(__dirname + '/../../thirdparty/w
 }));
 
 module.exports = {
-    updateBuildingScriptAsync : function (data) {
+    updateBuildingScriptAsync : function (data, taskName) {
         var deferred = Q.defer();
 
         var script = newProjectTpl({
@@ -29,7 +29,7 @@ module.exports = {
             form : {
                 username : config.PUBLIC_LDAP_AUTH.USERNAME,
                 password : config.PUBLIC_LDAP_AUTH.PASSWORD,
-                title : 'conf.test/Frontend/' + data.title + '/deploy-staging.xml',
+                title : 'conf.test/Frontend/' + data.title + '/' + taskName + '.xml',
                 content : script
             }
         }, function (err, res, body) {

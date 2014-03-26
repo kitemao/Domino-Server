@@ -1,6 +1,10 @@
 module.exports.routes = {
-    'get /project/:title/build': {
+    'get /project/:title': {
         controller : 'project',
-        action : 'build'
+        action : 'find'
+    },
+    'get /project/:title/hooks': {
+        controller : 'project',
+        action : 'hooks'
     }
 };

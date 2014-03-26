@@ -17,10 +17,7 @@ module.exports = function (grunt) {
                     '**/*.js',
                     '!node_modules/**/*.*',
                 ],
-                tasks : ['jshint:test', 'mochaTest'],
-                options : {
-                    spawn : false
-                }
+                tasks : ['jshint:test', 'mochaTest:test']
             }
         },
         open: {
@@ -86,6 +83,7 @@ module.exports = function (grunt) {
         },
         jshint : {
             options : {
+                jshintrc : '.jshintrc',
                 ignores : ['**/node_modules/**/*.js']
             },
             test : ['**/*.js']

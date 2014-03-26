@@ -18,7 +18,7 @@ module.exports = {
 
         gapis
             .discover('plus', 'v1')
-            .execute(function(err, client) {
+            .execute(function (err, client) {
                 client
                     .plus.people.get({ userId: 'me' })
                     .withAuthClient(oauth2Client)

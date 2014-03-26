@@ -1,5 +1,6 @@
 *.DS_Store
 *.sublime-*
+.dominodevrc
 
 /node_modules/
 /.tmp/

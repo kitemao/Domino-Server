@@ -81,5 +81,10 @@
     "white"         : true,    // true: Check against strict whitespace and indentation rules
 
     // Custom Globals
-    "globals"       : {}        // additional predefined global variables
+    "globals"       : {
+        "describe" : true,
+        "it" : true,
+        "before" : true,
+        "after" : true
+    }
 }
