@@ -1,6 +1,9 @@
 /*global Project*/
 var request = require('supertest');
 var Sails = require('sails');
+var assert = require('assert');
+
+var StatusCode = require('../../utils/StatusCodeMapping');
 
 request = request('http://localhost:1337');
 process.env.NODE_ENV = 'test';
@@ -11,11 +14,7 @@ describe('Test API suite: /api/project', function () {
     var projectId;
 
     before(function (done) {
-        Sails.lift({
-            log : {
-                level : 'error'
-            }
-        }, function (err, sails) {
+        Sails.lift(require('rc')('sails'), function (err, sails) {
             if (err) {
                 console.error(err);
             } else {
@@ -29,7 +28,7 @@ describe('Test API suite: /api/project', function () {
 
     after(function (done) {
         Project.findOne({
-            id : projectId
+            title : 'Domino-Test'
         }).done(function (err, project) {
             project.destroy(function () {
                 app.lower(function (err) {
@@ -45,32 +44,82 @@ describe('Test API suite: /api/project', function () {
         });
     });
 
-    it('Create project. ', function (done) {
-        request
-            .post('/project')
-            .send({
-                title : 'Domino-Test',
-                description : 'Domino test project. ',
-                type : 0,
-                stagingServers : 'app150.hy01|app151.hy01',
-                productionServers : 'test111.hy01',
-                notificationList : 'wangye.zhao|miaojian',
-                url : 'git@github.com:wandoulabs/Domino.git'
-            })
-            .expect(200)
-            .expect(function (res) {
-                projectId = res.body.body.id;
-                if (res.body.body.title !== 'Domino-Test') {
-                    return 'Create project failed. ';
-                }
-            })
-            .end(done);
-    });
+    describe('Project actions. ', function () {
+        it('Create project. ', function (done) {
+            request
+                .post('/project')
+                .send({
+                    title : 'Domino-Test',
+                    description : 'Domino test project. ',
+                    type : 0,
+                    stagingServers : 'app150.hy01|app151.hy01',
+                    productionServers : 'test111.hy01',
+                    notificationList : 'wangye.zhao|miaojian',
+                    url : 'git@github.com:wandoulabs/Domino.git'
+                })
+                .expect(200)
+                .expect(function (res) {
+                    projectId = res.body.body.id;
+                    assert.equal(res.body.body.title, 'Domino-Test', 'Response Project attrs are not correct. ');
+                })
+                .end(done);
+        });
 
-    it('List projects. ', function (done) {
-        request
-            .get('/project')
-            .expect(200)
-            .end(done);
+        it('Create project with duplicated parameters. ', function (done) {
+            request
+                .post('/project')
+                .send({
+                    title : 'Domino-Test',
+                    description : 'Domino test project. ',
+                    type : 0,
+                    stagingServers : 'app150.hy01|app151.hy01',
+                    productionServers : 'test111.hy01',
+                    notificationList : 'wangye.zhao|miaojian',
+                    url : 'git@github.com:wandoulabs/Domino.git'
+                })
+                .expect(StatusCode.RESOURCE_DUPLICATED)
+                .end(done);
+        });
+
+        it('List projects. ', function (done) {
+            request
+                .get('/project')
+                .expect(200)
+                .expect(function (res) {
+                    assert.equal(res.body.body instanceof Array, true, 'Response should be a list. ');
+                })
+                .end(done);
+        });
+
+        it('Query a project. ', function (done) {
+            request
+                .get('/project/Domino-Test')
+                .expect(200)
+                .expect(function (res) {
+                    assert.equal(res.body.body.title, 'Domino-Test', 'Response Project attrs are not correct. ');
+                })
+                .end(done);
+        });
+
+        it('Query a project not exist. ', function (done) {
+            request
+                .get('/project/Domino-Test-xxx')
+                .expect(404)
+                .end(done);
+        });
+
+        it('Query hooks with project title. ', function (done) {
+            request
+                .get('/project/Domino-Test/hooks')
+                .expect(200)
+                .end(done);
+        });
+
+        it('Query hooks with project title not exist. ', function (done) {
+            request
+                .get('/project/Domino-Test-xxx/hooks')
+                .expect(404)
+                .end(done);
+        });
     });
 });
