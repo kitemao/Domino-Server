@@ -61,7 +61,6 @@ module.exports = {
         var deferred = Q.defer();
 
         JenkinsAPI.runJobAsync(title + '-deploy-' + type).then(function (location) {
-            this.watchTask
             deferred.resolve({
                 location : location
             });
