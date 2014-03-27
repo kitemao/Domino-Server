@@ -1,3 +1,6 @@
+/*global Hook, _*/
+var Q = require('q');
+
 module.exports = {
     enums : {
         TYPE : {
@@ -36,5 +39,18 @@ module.exports = {
         develpoer : 'ARRAY',
         lastStagingBuild : 'STRING',
         lastProdctuionBuild : 'STRING'
+    },
+    afterDestroy : function (projects, next) {
+        var deffers = [];
+
+        _.each(projects, function (project) {
+            deffers.push(Hook.destroy({
+                projectId : project.id
+            }));
+        });
+
+        Q.all(deffers).then(function () {
+            next();
+        });
     }
 };

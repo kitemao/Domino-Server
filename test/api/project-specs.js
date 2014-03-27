@@ -1,7 +1,9 @@
 /*global Project*/
-var request = require('supertest');
-var Sails = require('sails');
 var assert = require('assert');
+
+var Sails = require('sails');
+var request = require('supertest');
+var Q = require('q');
 
 var StatusCode = require('../../utils/StatusCodeMapping');
 
@@ -18,7 +20,7 @@ describe('Test API suite: /api/project', function () {
             if (err) {
                 console.error(err);
             } else {
-                console.log('Server lifted. ');
+                console.info('Server lifted. ');
             }
 
             app = sails;
@@ -35,7 +37,7 @@ describe('Test API suite: /api/project', function () {
                     if (err) {
                         console.error(err);
                     } else {
-                        console.log('Server lowered. ');
+                        console.info('Server lowered. ');
                     }
 
                     done(err);
@@ -118,6 +120,13 @@ describe('Test API suite: /api/project', function () {
         it('Query hooks with project title not exist. ', function (done) {
             request
                 .get('/project/Domino-Test-xxx/hooks')
+                .expect(404)
+                .end(done);
+        });
+
+        it('Trigger an event. ', function (done) {
+            request
+                .post('/project/Domino-Test/trigger/buildStaging')
                 .expect(404)
                 .end(done);
         });
