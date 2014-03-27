@@ -1,5 +1,7 @@
 /*global Project, Hook*/
 var Q = require('q');
+var yaml = require('js-yaml');
+
 var fs = require('fs');
 
 var StatusCode = require('../../utils/StatusCodeMapping');
@@ -7,7 +9,7 @@ var Msg = require('../../utils/MsgMapping');
 var Jenkins = require('../../thirdparty/jenkins/jenkins');
 var WandouLabs = require('../../thirdparty/wandoulabs/wandoulabs');
 
-var generateTemplateHooksAsync = function (projectId) {
+var generateTemplateHooksAsync = function (title) {
     var deferred = Q.defer();
 
     var runAsync = function (task) {
@@ -24,7 +26,7 @@ var generateTemplateHooksAsync = function (projectId) {
 
     var templates = [{
         title : 'Build Staging',
-        projectId : projectId,
+        projectTitle : title,
         order : -1,
         event : 'buildStaging',
         type : 0,
@@ -34,7 +36,7 @@ var generateTemplateHooksAsync = function (projectId) {
     Q.all([
         Hook.create(templates[0])
     ]).then(function () {
-        console.log(123);
+        deferred.resolve();
     });
 
 
@@ -42,29 +44,66 @@ var generateTemplateHooksAsync = function (projectId) {
 };
 
 module.exports = {
-    _config : {},
     hooks : function (req, res) {
         var title = req.param('title');
 
-        Project.findOne({
-            title : title
-        }).then(function (project) {
-            if (project !== undefined) {
-                Hook.find({
-                    projectId : project.id
-                }).then(function (hooks) {
-                    res.json({
-                        body : hooks
-                    }, StatusCode.SUCCESS);
-                });
+        Hook.find({
+            projectTitle : title
+        }).then(function (hooks) {
+            if (hooks.length !== 0) {
+                res.json({
+                    body : hooks
+                }, StatusCode.SUCCESS);
+            } else {
+                res.json({}, StatusCode.NOT_FOUND);
+            }
+        });
+    },
+    trigger : function (req, res) {
+        var title = req.param('title');
+        var evt = req.param('evt');
+
+        Hook.find({
+            projectTitle : title,
+            event : evt
+        }).then(function (hooks) {
+            if (hooks.length !== 0) {
+                res.send({}, StatusCode.NOT_FOUND);
             } else {
                 res.send({}, StatusCode.NOT_FOUND);
             }
         });
+
+        // Project.findOne({
+        //     title : title
+        // }).then(function (project) {
+        //     if (project !== undefined) {
+        //         Hook.find({
+        //             projectId : project.id,
+        //             event : evt
+        //         }).then(function (hooks) {
+        //             console.log(hooks);
+        //         });
+        //         // res.send({
+        //         //     body : project
+        //         // }, StatusCode.SUCCESS);
+        //     } else {
+        //         res.send({}, StatusCode.NOT_FOUND);
+        //     }
+        // });
+
+        // Jenkins.runJobAsync(title, type).then(function (result) {
+        //     res.send({
+        //         body : result
+        //     }, StatusCode.SUCCESS);
+        // }, function (err) {
+        //     res.send({
+        //         err : err
+        //     }, StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED);
+        // });
     },
     find : function (req, res) {
         var title = req.param('title');
-
         if (title !== undefined) {
             Project.findOne({
                 title : title
@@ -74,7 +113,7 @@ module.exports = {
                         body : project
                     }, StatusCode.SUCCESS);
                 } else {
-                    res.send({}, StatusCode.SUCCESS);
+                    res.send({}, StatusCode.NOT_FOUND);
                 }
             });
         } else {
@@ -101,7 +140,7 @@ module.exports = {
                 productionServers : data.productionServers,
                 notificationList : data.notificationList
             }).then(function (project) {
-                generateTemplateHooksAsync(project.id).then(function () {
+                generateTemplateHooksAsync(project.title).then(function () {
                     res.json({
                         body : project
                     }, StatusCode.SUCCESS);
