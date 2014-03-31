@@ -10,11 +10,54 @@ var auth = {
 
 var requestJenkins = function () {
     arguments[0].url = API_PREFIX + arguments[0].url;
+    arguments[0].auth = arguments[0].auth || auth;
 
     request.apply(this, arguments);
 };
 
-module.exports = {
+var jenkinsAPI = {
+    getBuildStatusAsync : function (url) {
+        var deferred = Q.defer();
+
+        request({
+            method : 'GET',
+            url : url + '/api/json',
+            json : true,
+            auth : auth
+        }, function (err, res, body) {
+            if (res.statusCode === 200) {
+                deferred.resolve(res);
+            } else {
+                deferred.reject(new Error(body));
+            }
+        });
+
+        return deferred.promise;
+    },
+    getProgressAsync : function (url, cb) {
+        var deferred = Q.defer();
+
+        var readProgressAsync = function (start) {
+            start = start || 0;
+            jenkinsAPI.fetchProgressAsync(url, start).then(function (res) {
+                if (res.headers['x-more-data']) {
+                    readProgressAsync(parseInt(res.headers['x-text-size'], 10));
+                } else {
+                    deferred.resolve();
+                }
+
+                if (res.body) {
+                    cb(res.body);
+                }
+            }, function () {
+                readProgressAsync(start);
+            });
+        };
+
+        readProgressAsync();
+
+        return deferred.promise;
+    },
     setAuth : function (user, pass) {
         auth.user = user;
         auth.pass = pass;
@@ -32,7 +75,6 @@ module.exports = {
         requestJenkins({
             method : 'POST',
             url : '/createItem',
-            auth : auth,
             qs : {
                 name : name
             },
@@ -42,7 +84,7 @@ module.exports = {
             body : config
         }, function (err, res, body) {
             if (res.statusCode === 200) {
-                deferred.resolve(body);
+                deferred.resolve(res);
             } else {
                 deferred.reject(new Error(body));
             }
@@ -56,13 +98,12 @@ module.exports = {
         requestJenkins({
             method : 'POST',
             url : '/view/' + viewName + '/addJobToView',
-            auth : auth,
             qs : {
                 name : jobName
             }
         }, function (err, res, body) {
             if (res.statusCode === 200) {
-                deferred.resolve(body);
+                deferred.resolve(res);
             } else {
                 deferred.reject(new Error(body));
             }
@@ -75,11 +116,10 @@ module.exports = {
 
         requestJenkins({
             method : 'POST',
-            url : '/job/' + name + '/doDelete',
-            auth : auth
+            url : '/job/' + name + '/doDelete'
         }, function (err, res, body) {
-            if (res.statusCode === 200) {
-                deferred.resolve(body);
+            if (res.statusCode === 200 || res.statusCode === 302) {
+                deferred.resolve(res);
             } else {
                 deferred.reject(new Error(body));
             }
@@ -92,8 +132,7 @@ module.exports = {
 
         requestJenkins({
             method : 'POST',
-            url : '/job/' + name + '/build',
-            auth : auth
+            url : '/job/' + name + '/build'
         }, function (err, res, body) {
             if (res.statusCode === 201) {
                 deferred.resolve(res.headers.location);
@@ -103,5 +142,54 @@ module.exports = {
         });
 
         return deferred.promise;
+    },
+    getQueueItemAsync : function (location) {
+        var deferred = Q.defer();
+
+        request({
+            method : 'GET',
+            url : location + '/api/json',
+            json : true,
+            auth : auth
+        }, function (err, res, body) {
+            if (res.statusCode === 200) {
+                deferred.resolve(res);
+            } else {
+                deferred.reject(new Error(body));
+            }
+        });
+
+        return deferred.promise;
+    },
+    fetchProgressAsync : function (url, type, start) {
+        var deferred = Q.defer();
+
+        if (typeof type !== 'string') {
+            start = type;
+            type = undefined;
+        }
+
+        type = type === 'text' ? 'progressiveText' : 'progressiveHtml';
+
+        url += 'logText/' + type;
+
+        request({
+            method : 'GET',
+            url : url,
+            qs : {
+                start : start || 0
+            },
+            auth : auth
+        }, function (err, res, body) {
+            if (res.statusCode === 200) {
+                deferred.resolve(res);
+            } else {
+                deferred.resolve(new Error(body));
+            }
+        });
+
+        return deferred.promise;
     }
 };
+
+module.exports = jenkinsAPI;

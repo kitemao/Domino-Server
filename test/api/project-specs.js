@@ -1,4 +1,3 @@
-/*global Project*/
 var assert = require('assert');
 
 var Sails = require('sails');

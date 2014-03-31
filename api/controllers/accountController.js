@@ -12,6 +12,7 @@ module.exports = {
     auth : function  (req, res) {
         var tokens = req.body;
 
+        /* jshint -W106 */
         tokens.expires_in = parseInt(tokens.expires_in, 10);
 
         oauth2Client.setCredentials(tokens);
