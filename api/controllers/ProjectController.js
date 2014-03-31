@@ -1,4 +1,3 @@
-/*global Project, Hook*/
 var Q = require('q');
 var yaml = require('js-yaml');
 

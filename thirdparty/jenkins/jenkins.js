@@ -73,12 +73,13 @@ module.exports = {
                         });
                     }).then(function () {
                         JenkinsAPI.getBuildStatusAsync(res.body.executable.url).then(function (res) {
-                            if (res.body.result === 'FAILUE') {
+                            if (res.body.result === 'FAILURE') {
                                 Task.update({
                                     id : task.id
                                 }, {
+                                    endTine : new Date(),
                                     status : Task.enums.STATUS.FAILED
-                                }).then(function () {
+                                }).then(function (task) {
                                     return;
                                 });
                             }

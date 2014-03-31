@@ -22,6 +22,7 @@ var jenkinsAPI = {
         request({
             method : 'GET',
             url : url + '/api/json',
+            json : true,
             auth : auth
         }, function (err, res, body) {
             if (res.statusCode === 200) {

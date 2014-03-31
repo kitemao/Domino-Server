@@ -7,6 +7,10 @@ module.exports.routes = {
         controller : 'project',
         action : 'find'
     },
+    'get /project/:title/task' : {
+        controller : 'task',
+        action : 'find'
+    },
     'get /project/:title/hooks': {
         controller : 'project',
         action : 'hooks'
@@ -15,8 +19,12 @@ module.exports.routes = {
         controller : 'project',
         action : 'trigger'
     },
-    'get /hook/template/:type' : {
-        controller : 'hook',
-        action : 'template'
+    // 'get /hook/template/:type' : {
+    //     controller : 'hook',
+    //     action : 'template'
+    // },
+    'get /task/:title' : {
+        controller : 'task',
+        action : 'find'
     }
 };
