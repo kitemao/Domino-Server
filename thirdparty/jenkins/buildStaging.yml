@@ -1,0 +1,7 @@
+service: Jenkins
+host: <%= host %>
+jobname: <%= jobname %>
+auth:
+    user: <%= username %>
+    pass: <%= password %>
+

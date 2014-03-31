@@ -63,44 +63,19 @@ module.exports = {
         var title = req.param('title');
         var evt = req.param('evt');
 
-        Hook.find({
+        Hook.findOne({
             projectTitle : title,
             event : evt
-        }).then(function (hooks) {
-            if (hooks.length !== 0) {
-                res.send({}, StatusCode.NOT_FOUND);
+        }).then(function (hook) {
+            if (hook !== undefined) {
+                hook.run();
+                res.send({
+                    body : hook
+                }, StatusCode.SUCCESS);
             } else {
                 res.send({}, StatusCode.NOT_FOUND);
             }
         });
-
-        // Project.findOne({
-        //     title : title
-        // }).then(function (project) {
-        //     if (project !== undefined) {
-        //         Hook.find({
-        //             projectId : project.id,
-        //             event : evt
-        //         }).then(function (hooks) {
-        //             console.log(hooks);
-        //         });
-        //         // res.send({
-        //         //     body : project
-        //         // }, StatusCode.SUCCESS);
-        //     } else {
-        //         res.send({}, StatusCode.NOT_FOUND);
-        //     }
-        // });
-
-        // Jenkins.runJobAsync(title, type).then(function (result) {
-        //     res.send({
-        //         body : result
-        //     }, StatusCode.SUCCESS);
-        // }, function (err) {
-        //     res.send({
-        //         err : err
-        //     }, StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED);
-        // });
     },
     find : function (req, res) {
         var title = req.param('title');

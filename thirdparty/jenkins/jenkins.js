@@ -4,6 +4,7 @@ var ejs = require('ejs');
 var Q = require('q');
 
 var config = require('../../config');
+
 var JenkinsAPI = require('./jenkins-api')
                     .setAuth(config.PUBLIC_LDAP_AUTH.USERNAME, config.PUBLIC_LDAP_AUTH.PASSWORD)
                     .setAPIPrefix(config.JENKINS_API_URL);
@@ -57,14 +58,60 @@ module.exports = {
 
         return deferred.promise;
     },
-    runJobAsync : function (title, type) {
+    getProgress : function (location, task) {
+        JenkinsAPI.getQueueItemAsync(location).then(function (res) {
+            if (res.body.executable) {
+                Task.update({
+                    id : task.id
+                }, {
+                    status : Task.enums.STATUS.RUNNING
+                }).then(function () {
+                    JenkinsAPI.getProgressAsync(res.body.executable.url, function (progress) {
+                        sails.io.sockets.emit('task.progress', {
+                            id : task.id,
+                            progress : progress
+                        });
+                    }).then(function () {
+                        JenkinsAPI.getBuildStatusAsync(res.body.executable.url).then(function (res) {
+                            if (res.body.result === 'FAILUE') {
+                                Task.update({
+                                    id : task.id
+                                }, {
+                                    status : Task.enums.STATUS.FAILED
+                                }).then(function () {
+                                    return;
+                                });
+                            }
+                        });
+                    });
+                }, function (err) {
+
+                });
+            } else {
+                setTimeout(function () {
+                    this.getProgress(location, task);
+                }.bind(this), 1000);
+            }
+        }.bind(this));
+    },
+    runJobAsync : function (title, type, task) {
         var deferred = Q.defer();
 
         JenkinsAPI.runJobAsync(title + '-deploy-' + type).then(function (location) {
+            Task.update({
+                id : task.id
+            }, {
+                status : Task.enums.STATUS.QUEUE
+            }).then(function () {
+                this.getProgress(location, task);
+            }.bind(this), function (err) {
+
+            });
+
             deferred.resolve({
                 location : location
             });
-        }, function (err) {
+        }.bind(this), function (err) {
             deferred.reject(err);
         });
 
