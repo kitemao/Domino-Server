@@ -19,7 +19,9 @@ module.exports = {
         designer : 'STRING',
         manager : 'STRING',
         projectTitle : 'STRING',
-        title : 'STRING'
+        title : 'STRING',
+        entrance : 'STRING',
+        log : 'STRING'
     },
     afterCreate : function (task, next) {
         sails.io.sockets.emit('task.add', task);
