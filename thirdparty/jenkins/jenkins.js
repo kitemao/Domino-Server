@@ -64,9 +64,12 @@ module.exports = {
                 Task.update({
                     id : task.id
                 }, {
-                    status : Task.enums.STATUS.RUNNING
+                    status : Task.enums.STATUS.RUNNING,
+                    entrance : res.body.executable.url
                 }).then(function () {
+                    var log = '';
                     JenkinsAPI.getProgressAsync(res.body.executable.url, function (progress) {
+                        log += progress;
                         sails.io.sockets.emit('task.progress', {
                             id : task.id,
                             progress : progress
@@ -78,7 +81,8 @@ module.exports = {
                                     id : task.id
                                 }, {
                                     endTine : new Date(),
-                                    status : Task.enums.STATUS.FAILED
+                                    status : Task.enums.STATUS.FAILED,
+                                    log : log
                                 }).then(function (task) {
                                     return;
                                 });

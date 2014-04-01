@@ -122,12 +122,29 @@ describe('Test API suite: /api/project', function () {
                 .expect(404)
                 .end(done);
         });
+    });
 
+    describe('Task actions. ', function () {
         it('Trigger an event. ', function (done) {
             request
                 .post('/project/Domino-Test/trigger/buildStaging')
-                .expect(404)
+                .expect(200)
                 .end(done);
         });
+
+        it('Fetch tasks list. ', function (done) {
+            request
+                .get('/task')
+                .expect(200)
+                .end(done);
+        });
+
+        it('Fetch tasks list with project title. ', function (done) {
+            request
+                .get('/task/Domino-Test')
+                .expect(200)
+                .end(done);
+        });
+
     });
 });

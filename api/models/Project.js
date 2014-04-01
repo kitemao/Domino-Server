@@ -47,6 +47,9 @@ module.exports = {
             deffers.push(Hook.destroy({
                 projectId : project.id
             }));
+            deffers.push(Task.destroy({
+                projectId : project.id
+            }));
         });
 
         Q.all(deffers).then(function () {
