@@ -1,16 +1,17 @@
 var gapis = require('googleapis');
+var Q = require('q');
 
-var CLIENT_ID = '389328904191.apps.googleusercontent.com';
-var CLIENT_SECRET = '3jTDE6VQJmr6RtUkTkA4x9hb';
+var config = require('../../config');
 
-// TODO: Replace with production URL
-var REDIRECT_URL = 'http://127.0.0.1:1337/account/auth';
+var CLIENT_ID = config.GOOGLE_API_CLIENT_ID;
+var CLIENT_SECRET = config.GOOGLE_API_CLIENT_SECRET;
+var REDIRECT_URL = config.GOOGLE_SIGN_IN_REDIRECT_URL;
 
 var oauth2Client = new gapis.OAuth2Client(CLIENT_ID, CLIENT_SECRET, REDIRECT_URL);
 
 module.exports = {
-    auth : function  (req, res) {
-        var tokens = req.body;
+    authAsync : function  (tokens) {
+        var deferred = Q.defer();
 
         /* jshint -W106 */
         tokens.expires_in = parseInt(tokens.expires_in, 10);
@@ -24,15 +25,14 @@ module.exports = {
                     .plus.people.get({ userId: 'me' })
                     .withAuthClient(oauth2Client)
                     .execute(function (err, response, body) {
-                        if (response.domain === 'wandoujia.com') {
-                            res.send(200);
+                        if (!err && response.domain === 'wandoujia.com') {
+                            deferred.resolve();
                         } else {
-                            res.send(403);
+                            deferred.reject();
                         }
                     });
             });
-    },
-    logout : function (req, res) {
 
+        return deferred.promise;
     }
 };
