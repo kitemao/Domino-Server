@@ -17,6 +17,14 @@ module.exports.policies = {
 
     ProjectController: {
         '*': 'sessionAuth'
+    },
+
+    TaskController: {
+        '*': 'sessionAuth'
+    },
+
+    AccountController: {
+        '*': true
     }
 };
 
