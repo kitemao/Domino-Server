@@ -1,21 +1,20 @@
-/**
- * sessionAuth
- *
- * @module      :: Policy
- * @description :: Simple policy to allow any authenticated user
- *                 Assumes that your login action in one of your controllers sets `req.session.authenticated = true;`
- * @docs        :: http://sailsjs.org/#!documentation/policies
- *
- */
-module.exports = function (req, res, next) {
+var gplusSignIn = require('../../thirdparty/google/auth');
 
-  // User is allowed, proceed to the next policy,
-  // or if this is the last policy, the controller
+module.exports = function (req, res, next) {
     if (req.session.authenticated) {
         return next();
-    }
+    } else {
+        var tokens = {
+            /* jshint -W106 */
+            // TODO: Add neccesary keys
+            expires_in : 0
+        };//req.cookies.tokens;
 
-    // User is not allowed
-    // (default res.forbidden() behavior can be overridden in `config/403.js`)
-    return res.forbidden('You are not permitted to perform this action.');
+        gplusSignIn.authAsync(tokens).then(function () {
+            res.session.authenticated = true;
+            next();
+        }, function () {
+            res.send(403);
+        });
+    }
 };

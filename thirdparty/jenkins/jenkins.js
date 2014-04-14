@@ -80,7 +80,7 @@ module.exports = {
                                 Task.update({
                                     id : task.id
                                 }, {
-                                    endTine : new Date(),
+                                    endTime : new Date(),
                                     status : Task.enums.STATUS.FAILED,
                                     log : log
                                 }).then(function (task) {

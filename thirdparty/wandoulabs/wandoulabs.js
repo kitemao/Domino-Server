@@ -29,7 +29,7 @@ module.exports = {
             form : {
                 username : config.PUBLIC_LDAP_AUTH.USERNAME,
                 password : config.PUBLIC_LDAP_AUTH.PASSWORD,
-                title : 'conf.test/Frontend/' + data.title + '/' + taskName + '.xml',
+                title : config.WANDOULABS_AUTODEPLOY_SRC + data.title + '/' + taskName + '.xml',
                 content : script
             }
         }, function (err, res, body) {
