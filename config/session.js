@@ -11,12 +11,13 @@
  */
 
 module.exports.session = {
-    secret : '8c431c4144196db1690aceb5a1bee218',
-    adapter : 'mongo',
-    host : 'localhost',
-    port : 27017,
-    db : 'sails',
-    collection : 'sessions',
-    username : '',
-    password : ''
+    secret: '8c431c4144196db1690aceb5a1bee218',
+
+    adapter: 'mongo',
+    host: 'localhost',
+    port: 27017,
+    db: 'sails',
+    collection: 'sessions',
+    username: '',
+    password: ''
 };
