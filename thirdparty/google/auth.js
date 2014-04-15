@@ -18,19 +18,19 @@ module.exports = {
 
         oauth2Client.setCredentials(tokens);
 
-        gapis
-            .discover('plus', 'v1')
+        gapis.discover('plus', 'v1')
             .execute(function (err, client) {
-                client
-                    .plus.people.get({ userId: 'me' })
-                    .withAuthClient(oauth2Client)
-                    .execute(function (err, response, body) {
-                        if (!err && response.domain === 'wandoujia.com') {
-                            deferred.resolve();
-                        } else {
-                            deferred.reject();
-                        }
-                    });
+                client.plus.people.get({
+                    userId: 'me'
+                })
+                .withAuthClient(oauth2Client)
+                .execute(function (err, response, body) {
+                    if (!err && response.domain === 'wandoujia.com') {
+                        deferred.resolve(response);
+                    } else {
+                        deferred.reject(err);
+                    }
+                });
             });
 
         return deferred.promise;
