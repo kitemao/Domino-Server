@@ -22,12 +22,14 @@ module.exports = {
             JenkinsAPI.createJobAsync(staingJobName, newJenkinsJobTpl({
                 description : data.description,
                 title : data.title,
-                taskName : 'deploy-staging'
+                taskName : 'deploy-staging',
+                configPath: config.WANDOULABS_AUTODEPLOY_SRC
             })),
             JenkinsAPI.createJobAsync(productionJobName, newJenkinsJobTpl({
                 description : data.description,
                 title : data.title,
-                taskName : 'deploy-production'
+                taskName : 'deploy-production',
+                configPath: config.WANDOULABS_AUTODEPLOY_SRC
             }))
         ]).then(function () {
             Q.all([

@@ -90,6 +90,8 @@
         "Project" : true,
         "Hook" : true,
         "Task" : true,
-        "sails" : true
+        "User" : true,
+        "sails" : true,
+        "_" : true
     }        // additional predefined global variables
 }

@@ -1,4 +1,3 @@
-/*global Hook, _*/
 var Q = require('q');
 
 module.exports = {
