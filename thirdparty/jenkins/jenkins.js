@@ -72,9 +72,13 @@ module.exports = {
                     var log = '';
                     JenkinsAPI.getProgressAsync(res.body.executable.url, function (progress) {
                         log += progress;
-                        sails.io.sockets.emit('task.progress', {
-                            id : task.id,
-                            progress : progress
+
+                        Task.update({
+                            id : task.id
+                        }, {
+                            log : log
+                        }).then(function (task) {
+                            return;
                         });
                     }).then(function () {
                         JenkinsAPI.getBuildStatusAsync(res.body.executable.url).then(function (res) {
