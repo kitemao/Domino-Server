@@ -27,8 +27,7 @@ module.exports = function (grunt) {
             }
         },
         clean : {
-            dist : ['<%= paths.tmp %>', '<%= paths.dist %>'],
-            server : '<%= paths.tmp %>'
+            dist : ['<%= paths.dist %>']
         },
         bump : {
             options : {
@@ -87,6 +86,24 @@ module.exports = function (grunt) {
                 ignores : ['**/node_modules/**/*.js']
             },
             test : ['**/*.js']
+        },
+        copy : {
+            production : {
+                files : [{
+                    expand : true,
+                    dest : '<%= paths.dist %>',
+                    src : [
+                        '**/*',
+                        '!.git/*',
+                        '!.domino*',
+                        '!.editorconfig',
+                        '!.git*',
+                        '!.travis.yml',
+                        '!.jshintrc',
+                        '!Gruntfile.js',
+                    ]
+                }]
+            }
         }
     });
 
@@ -103,20 +120,20 @@ module.exports = function (grunt) {
         'mochaTest:test'
     ]);
 
+    grunt.registerTask('build:production', [
+        'clean:dist',
+        'copy:production'
+    ]);
+
+    grunt.registerTask('build:staging', [
+        'clean:dist',
+        'copy:staging'
+    ]);
+
     grunt.registerTask(['update'], [
         'bump-only:patch',
         'changelog',
         'bump-commit'
-    ]);
-
-    grunt.registerTask(['build:release'], [
-        'bump',
-        'build'
-    ]);
-
-    grunt.registerTask(['build:patch'], [
-        'bump:patch',
-        'build'
     ]);
 
     grunt.registerTask('default', []);
