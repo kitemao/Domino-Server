@@ -1,0 +1,14 @@
+{
+    "PUBLIC_LDAP_AUTH" : {
+        "USERNAME" : "",
+        "PASSWORD" : ""
+    },
+    "JENKINS_API_URL" : "",
+    "JENKINS_VIEW_NAME" : "",
+
+    "GOOGLE_API_CLIENT_ID" : "",
+    "GOOGLE_API_CLIENT_SECRET" : "",
+    "GOOGLE_SIGN_IN_REDIRECT_URL" : "",
+
+    "WANDOULABS_AUTODEPLOY_SRC" : ""
+}
