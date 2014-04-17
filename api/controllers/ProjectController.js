@@ -30,10 +30,18 @@ var generateTemplateHooksAsync = function (title) {
         event : 'buildStaging',
         type : 0,
         script : ''
+    }, {
+        title : 'Build Production',
+        projectTitle : title,
+        order : -1,
+        event : 'buildProduction',
+        type : 0,
+        script : ''
     }];
 
     Q.all([
-        Hook.create(templates[0])
+        Hook.create(templates[0]),
+        Hook.create(templates[1])
     ]).then(function () {
         deferred.resolve();
     });

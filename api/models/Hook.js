@@ -16,8 +16,12 @@ module.exports = {
                 projectTitle : this.projectTitle,
                 title : this.title
             }).then(function (task) {
-                Jenkins.runJobAsync(task.projectTitle, 'staging', task);
-            });
+                if (this.event === 'buildStaging') {
+                    Jenkins.runJobAsync(task.projectTitle, 'staging', task);
+                } else if (this.event === 'buildProduction') {
+                    Jenkins.runJobAsync(task.projectTitle, 'production', task);
+                }
+            }.bind(this));
         }
     }
 };

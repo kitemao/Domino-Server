@@ -97,6 +97,16 @@ module.exports = {
                                 }).then(function (task) {
                                     return;
                                 });
+                            } else if (res.body.result === 'SUCCESS') {
+                                Task.update({
+                                    id : task.id
+                                }, {
+                                    endTime : new Date(),
+                                    status : Task.enums.STATUS.SUCCESS,
+                                    log : log
+                                }).then(function (task) {
+                                    return;
+                                });
                             }
                         });
                     });
