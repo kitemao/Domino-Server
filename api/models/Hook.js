@@ -1,20 +1,21 @@
 var Jenkins = require('../../thirdparty/jenkins/jenkins');
 
 module.exports = {
-    attributes : {
-        title : 'STRING',
-        projectTitle : 'STRING',
-        order : 'INTEGER',
-        event : 'STRING',
-        type : 'INTEGER',
-        script : 'STRING',
+    attributes: {
+        title: 'STRING',
+        projectTitle: 'STRING',
+        order: 'INTEGER',
+        event: 'STRING',
+        type: 'INTEGER',
+        script: 'STRING',
 
-        run : function () {
+        run : function (accountName) {
             Task.create({
-                startTime : new Date(),
-                status : Task.enums.STATUS.CREATED,
-                projectTitle : this.projectTitle,
-                title : this.title
+                startTime: new Date(),
+                status: Task.enums.STATUS.CREATED,
+                projectTitle: this.projectTitle,
+                title: this.title,
+                initor: accountName
             }).then(function (task) {
                 if (this.event === 'buildStaging') {
                     Jenkins.runJobAsync(task.projectTitle, 'staging', task);

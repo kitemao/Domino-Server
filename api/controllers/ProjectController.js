@@ -70,11 +70,11 @@ module.exports = {
         var evt = req.param('evt');
 
         Hook.findOne({
-            projectTitle : title,
-            event : evt
+            projectTitle: title,
+            event: evt
         }).then(function (hook) {
             if (hook !== undefined) {
-                hook.run();
+                hook.run(req.session.accountName);
                 res.send({
                     body : hook
                 }, StatusCode.SUCCESS);
