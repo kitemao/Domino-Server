@@ -16,7 +16,7 @@
         <action name="compile">
             <work_space>$source_dir</work_space>
             <git_clone>git clone <%= url %> $source_dir</git_clone>
-            <compile_cmd><![CDATA[cd $source_dir; npm i && bower install && grunt build:production]]></compile_cmd>
+            <compile_cmd><![CDATA[cd $source_dir; npm i && bower install && grunt build:<%= type %>]]></compile_cmd>
         </action>
         <action name="deploy">
             <deploy_dir>$deploy_dir</deploy_dir>

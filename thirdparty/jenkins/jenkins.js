@@ -80,6 +80,11 @@ module.exports = {
                         }).then(function (task) {
                             return;
                         });
+
+                        sails.io.sockets.emit('task.progress', {
+                            id : task.id,
+                            progress : progress
+                        });
                     }).then(function () {
                         JenkinsAPI.getBuildStatusAsync(res.body.executable.url).then(function (res) {
                             if (res.body.result === 'FAILURE') {

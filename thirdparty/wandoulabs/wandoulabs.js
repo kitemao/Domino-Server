@@ -20,7 +20,8 @@ module.exports = {
             receivers: data.notificationList.map(function (item) {
                 return item + '@wandoujia.com';
             }),
-            url : data.url
+            url : data.url,
+            type: taskName === 'deploy-staging' ? 'staging' : 'production'
         });
 
         request({
