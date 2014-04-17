@@ -46,7 +46,6 @@ var generateTemplateHooksAsync = function (title) {
         deferred.resolve();
     });
 
-
     return deferred.promise;
 };
 

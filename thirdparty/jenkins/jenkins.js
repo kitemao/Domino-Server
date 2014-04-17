@@ -71,6 +71,7 @@ module.exports = {
                 }).then(function () {
                     var log = '';
                     JenkinsAPI.getProgressAsync(res.body.executable.url, function (progress) {
+                        progress = progress.replace(/<span style="display: none;">([\s\S]*?)<\/span>/gi, '');
                         log += progress;
 
                         Task.update({
