@@ -7,12 +7,15 @@ module.exports = {
         gplusSignIn.authAsync(req.body).then(function (user) {
             res.send(200);
 
+            var accountName = _.find(user.emails, function (e) {
+                return e.type === 'account';
+            }).value.split('@')[0];
+
             req.session.authenticated = true;
+            req.session.accountName = accountName;
 
             User.addAsync({
-                accountName: _.find(user.emails, function (e) {
-                    return e.type === 'account';
-                }).value.split('@')[0],
+                accountName: accountName,
                 displayName: user.displayName
             });
         }, function (err) {
