@@ -22,12 +22,14 @@ module.exports = {
             JenkinsAPI.createJobAsync(staingJobName, newJenkinsJobTpl({
                 description : data.description,
                 title : data.title,
-                taskName : 'deploy-staging'
+                taskName : 'deploy-staging',
+                configPath: config.WANDOULABS_AUTODEPLOY_SRC
             })),
             JenkinsAPI.createJobAsync(productionJobName, newJenkinsJobTpl({
                 description : data.description,
                 title : data.title,
-                taskName : 'deploy-production'
+                taskName : 'deploy-production',
+                configPath: config.WANDOULABS_AUTODEPLOY_SRC
             }))
         ]).then(function () {
             Q.all([
@@ -69,7 +71,17 @@ module.exports = {
                 }).then(function () {
                     var log = '';
                     JenkinsAPI.getProgressAsync(res.body.executable.url, function (progress) {
+                        progress = progress.replace(/<span style="display: none;">([\s\S]*?)<\/span>/gi, '');
                         log += progress;
+
+                        Task.update({
+                            id : task.id
+                        }, {
+                            log : log
+                        }).then(function (task) {
+                            return;
+                        });
+
                         sails.io.sockets.emit('task.progress', {
                             id : task.id,
                             progress : progress
@@ -82,6 +94,16 @@ module.exports = {
                                 }, {
                                     endTime : new Date(),
                                     status : Task.enums.STATUS.FAILED,
+                                    log : log
+                                }).then(function (task) {
+                                    return;
+                                });
+                            } else if (res.body.result === 'SUCCESS') {
+                                Task.update({
+                                    id : task.id
+                                }, {
+                                    endTime : new Date(),
+                                    status : Task.enums.STATUS.SUCCESS,
                                     log : log
                                 }).then(function (task) {
                                     return;
