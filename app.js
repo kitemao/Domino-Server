@@ -48,6 +48,7 @@ try {
 	}
 }
 
-
 // Start server
-sails.lift(rc('sails'));
+sails.lift(rc('sails'), function () {
+	require('./thirdparty/jenkins/jenkins').syncTaskStatusWithJenkins();
+});

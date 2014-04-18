@@ -1,27 +1,27 @@
 module.exports = {
-    enums : {
-        STATUS : {
-            CREATED : 0,
-            QUEUE : 1,
-            RUNNING : 2,
-            PAUSE : 3,
-            FAILED : 4,
-            FOURCE_RUNING : 5,
-            SUCCESS : 6
+    enums: {
+        STATUS: {
+            CREATED: 0,
+            QUEUE: 1,
+            RUNNING: 2,
+            PAUSE: 3,
+            FAILED: 4,
+            FOURCE_RUNING: 5,
+            SUCCESS: 6
         }
     },
-    attributes : {
-        version : 'STRING',
-        startTime : 'DATE',
-        endTime : 'DATE',
-        status : 'INTEGER',
-        initor : 'STRING',
-        designer : 'STRING',
-        manager : 'STRING',
-        projectTitle : 'STRING',
-        title : 'STRING',
-        entrance : 'STRING',
-        log : 'STRING'
+    attributes: {
+        version: 'STRING',
+        startTime: 'DATE',
+        endTime: 'DATE',
+        status: 'INTEGER',
+        initor: 'STRING',
+        designer: 'STRING',
+        manager: 'STRING',
+        projectTitle: 'STRING',
+        title: 'STRING',
+        entrance: 'STRING',
+        log: 'STRING'
     },
     afterCreate : function (task, next) {
         sails.io.sockets.emit('task.add', task);

@@ -12,7 +12,7 @@ var JenkinsAPI = require('./jenkins-api')
 var newJenkinsJobTpl = ejs.compile(fs.readFileSync(__dirname + '/jenkinsJob.ejs', 'utf8'));
 
 module.exports = {
-    createJobsAsync : function (data) {
+    createJobsAsync: function (data) {
         var deferred = Q.defer();
 
         var staingJobName = data.title + '-deploy-staging';
@@ -20,15 +20,15 @@ module.exports = {
 
         Q.all([
             JenkinsAPI.createJobAsync(staingJobName, newJenkinsJobTpl({
-                description : data.description,
-                title : data.title,
-                taskName : 'deploy-staging',
+                description: data.description,
+                title: data.title,
+                taskName: 'deploy-staging',
                 configPath: config.WANDOULABS_AUTODEPLOY_SRC
             })),
             JenkinsAPI.createJobAsync(productionJobName, newJenkinsJobTpl({
-                description : data.description,
-                title : data.title,
-                taskName : 'deploy-production',
+                description: data.description,
+                title: data.title,
+                taskName: 'deploy-production',
                 configPath: config.WANDOULABS_AUTODEPLOY_SRC
             }))
         ]).then(function () {
@@ -64,10 +64,10 @@ module.exports = {
         JenkinsAPI.getQueueItemAsync(location).then(function (res) {
             if (res.body.executable) {
                 Task.update({
-                    id : task.id
+                    id: task.id
                 }, {
-                    status : Task.enums.STATUS.RUNNING,
-                    entrance : res.body.executable.url
+                    status: Task.enums.STATUS.RUNNING,
+                    entrance: res.body.executable.url
                 }).then(function () {
                     var log = '';
                     JenkinsAPI.getProgressAsync(res.body.executable.url, function (progress) {
@@ -75,40 +75,28 @@ module.exports = {
                         log += progress;
 
                         Task.update({
-                            id : task.id
+                            id: task.id
                         }, {
-                            log : log
+                            log: log
                         }).then(function (task) {
                             return;
                         });
 
                         sails.io.sockets.emit('task.progress', {
-                            id : task.id,
-                            progress : progress
+                            id: task.id,
+                            progress: progress
                         });
                     }).then(function () {
                         JenkinsAPI.getBuildStatusAsync(res.body.executable.url).then(function (res) {
-                            if (res.body.result === 'FAILURE') {
-                                Task.update({
-                                    id : task.id
-                                }, {
-                                    endTime : new Date(),
-                                    status : Task.enums.STATUS.FAILED,
-                                    log : log
-                                }).then(function (task) {
-                                    return;
-                                });
-                            } else if (res.body.result === 'SUCCESS') {
-                                Task.update({
-                                    id : task.id
-                                }, {
-                                    endTime : new Date(),
-                                    status : Task.enums.STATUS.SUCCESS,
-                                    log : log
-                                }).then(function (task) {
-                                    return;
-                                });
-                            }
+                            Task.update({
+                                id: task.id
+                            }, {
+                                endTime: new Date(),
+                                status: res.body.result === 'SUCCESS' ? Task.enums.STATUS.SUCCESS : Task.enums.STATUS.FAILED,
+                                log: log
+                            }).then(function (task) {
+                                return;
+                            });
                         });
                     });
                 }, function (err) {
@@ -121,14 +109,14 @@ module.exports = {
             }
         }.bind(this));
     },
-    runJobAsync : function (title, type, task) {
+    runJobAsync: function (title, type, task) {
         var deferred = Q.defer();
 
         JenkinsAPI.runJobAsync(title + '-deploy-' + type).then(function (location) {
             Task.update({
-                id : task.id
+                id: task.id
             }, {
-                status : Task.enums.STATUS.QUEUE
+                status: Task.enums.STATUS.QUEUE
             }).then(function () {
                 this.getProgress(location, task);
             }.bind(this), function (err) {
@@ -136,12 +124,39 @@ module.exports = {
             });
 
             deferred.resolve({
-                location : location
+                location: location
             });
         }.bind(this), function (err) {
             deferred.reject(err);
         });
 
         return deferred.promise;
+    },
+    syncTaskStatusWithJenkins: function () {
+        Task.find({
+            or: [{
+                status: Task.enums.STATUS.CREATED
+            }, {
+                status: Task.enums.STATUS.QUEUE
+            }, {
+                status: Task.enums.STATUS.RUNNING
+            }]
+        }).then(function (tasks) {
+            _.each(tasks, function (task) {
+                if (task.entrance) {
+                    JenkinsAPI.getBuildStatusAsync(task.entrance).then(function (res) {
+                        var build = res.body;
+                        Task.update({
+                            id: task.id
+                        }, {
+                            endTime: new Date(task.startTime.getTime() + build.duration),
+                            status: build.result === 'SUCCESS' ? Task.enums.STATUS.SUCCESS : Task.enums.STATUS.FAILED
+                        }).then(function () {
+                            return;
+                        });
+                    });
+                }
+            });
+        });
     }
 };
