@@ -7,25 +7,34 @@ module.exports = {
         var page = res.param('page') || 1;
 
         if (title) {
-            Task.find({
-                projectTitle : title
-            }).limit(pageSize)
-                .skip(Math.max(page - 1, 1))
-                .sort('startTime DESC')
-                .then(function (tasks) {
-                    req.json({
-                        body : tasks
-                    }, StatusCode.SUCCESS);
-                });
+            Task.count().then(function (count) {
+                Task.find({
+                    projectTitle : title
+                }).sort('startTime DESC')
+                    .paginate({
+                        page: Math.max(page - 1, 1),
+                        limit: pageSize
+                    }).then(function (tasks) {
+                        req.json({
+                            body: tasks,
+                            max: count
+                        }, StatusCode.SUCCESS);
+                    });
+            });
         } else {
-            Task.find()
-                .sort('startTime DESC')
-                .then(function (tasks) {
-                    req.json({
-                        body : tasks
-                    }, StatusCode.SUCCESS);
-                });
-
+            Task.count().then(function (count) {
+                Task.find()
+                    .sort('startTime DESC')
+                    .paginate({
+                        page: Math.max(page - 1, 1),
+                        limit: pageSize
+                    }).then(function (tasks) {
+                        req.json({
+                            body: tasks,
+                            max: count
+                        }, StatusCode.SUCCESS);
+                    });
+            });
         }
     }
 };
