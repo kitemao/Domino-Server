@@ -20,7 +20,9 @@ module.exports = {
                 });
 
             Q.all([
-                Task.count(),
+                Task.count({
+                    projectTitle : title
+                }),
                 queryTaskAsync
             ]).then(function (results) {
                 req.json({
