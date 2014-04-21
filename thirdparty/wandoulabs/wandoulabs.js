@@ -16,7 +16,7 @@ module.exports = {
 
         var script = newProjectTpl({
             title: data.title,
-            servers: data.stagingServers,
+            servers: taskName === 'deploy-staging' ? data.stagingServers : data.productionServers,
             receivers: data.notificationList.map(function (item) {
                 return item + '@wandoujia.com';
             }),
