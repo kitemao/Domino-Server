@@ -127,7 +127,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build:staging', [
         'clean:dist',
-        'copy:staging'
+        'copy:production'
     ]);
 
     grunt.registerTask(['update'], [

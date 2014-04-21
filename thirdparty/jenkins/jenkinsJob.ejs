@@ -20,7 +20,7 @@
     <concurrentBuild>false</concurrentBuild>
     <builders>
         <hudson.tasks.Shell>
-            <command><![CDATA[cd /home/work/autodeploy/deploy && git pull && python run.py -u conf.new/<%= configPath %>/<%= title %>/<%= taskName %>.xml]]></command>
+            <command><![CDATA[cd /home/work/autodeploy/deploy && git pull && python run.py -u online/<%= configPath %>/<%= title %>/<%= taskName %>.xml]]></command>
         </hudson.tasks.Shell>
     </builders>
     <publishers>
