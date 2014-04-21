@@ -1,3 +1,5 @@
+var Q = require('q');
+
 var StatusCode = require('../../utils/StatusCodeMapping');
 
 module.exports = {
@@ -6,26 +8,43 @@ module.exports = {
         var pageSize = res.param('pageSize') || 20;
         var page = res.param('page') || 1;
 
+        var queryTaskAsync;
+
         if (title) {
-            Task.find({
+            queryTaskAsync = Task.find({
                 projectTitle : title
-            }).limit(pageSize)
-                .skip(Math.max(page - 1, 1))
-                .sort('startTime DESC')
-                .then(function (tasks) {
-                    req.json({
-                        body : tasks
-                    }, StatusCode.SUCCESS);
-                });
-        } else {
-            Task.find()
-                .sort('startTime DESC')
-                .then(function (tasks) {
-                    req.json({
-                        body : tasks
-                    }, StatusCode.SUCCESS);
+            }).sort('startTime DESC')
+                .paginate({
+                    page: Math.max(page - 1, 1),
+                    limit: pageSize
                 });
 
+            Q.all([
+                Task.count(),
+                queryTaskAsync
+            ]).then(function (results) {
+                req.json({
+                    body: results[1],
+                    max: results[0]
+                }, StatusCode.SUCCESS);
+            });
+        } else {
+            queryTaskAsync = Task.find()
+                .sort('startTime DESC')
+                .paginate({
+                    page: Math.max(page - 1, 1),
+                    limit: pageSize
+                });
+
+            Q.all([
+                Task.count(),
+                queryTaskAsync
+            ]).then(function (results) {
+                req.json({
+                    body: results[1],
+                    max: results[0]
+                }, StatusCode.SUCCESS);
+            });
         }
     }
 };
