@@ -15,7 +15,7 @@ module.exports = {
                 projectTitle : title
             }).sort('startTime DESC')
                 .paginate({
-                    page: Math.max(page - 1, 1),
+                    page: Math.max(page, 1),
                     limit: pageSize
                 });
 
