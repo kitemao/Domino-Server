@@ -150,6 +150,7 @@ module.exports = {
                             id: task.id
                         }, {
                             endTime: new Date(task.startTime.getTime() + build.duration),
+                            // todo: 有可能拿到的是正在运行的任务
                             status: build.result === 'SUCCESS' ? Task.enums.STATUS.SUCCESS : Task.enums.STATUS.FAILED
                         }).then(function () {
                             return;

@@ -49,6 +49,21 @@ var generateTemplateHooksAsync = function (title) {
     return deferred.promise;
 };
 
+function dealData(data) {
+    data.stagingServers = data.stagingServers.split('|');
+    data.productionServers = data.productionServers.split('|');
+    data.notificationList = data.notificationList.split('|');
+
+    return data;
+}
+
+function updateBuildScirpt(data) {
+    return Q.all([
+        WandouLabs.updateBuildingScriptAsync(data, 'deploy-staging'),
+        WandouLabs.updateBuildingScriptAsync(data, 'deploy-production')
+    ]);
+}
+
 module.exports = {
     hooks : function (req, res) {
         var title = req.param('title');
@@ -63,6 +78,30 @@ module.exports = {
             } else {
                 res.json({}, StatusCode.NOT_FOUND);
             }
+        });
+    },
+    updata: function (req, res) {
+        var title = req.param('title');
+
+        var data = req.body;
+        data = dealData(data);
+
+        // 更新文档
+        updateBuildScirpt(data).then(function () {
+            //更新项目
+            Project.update({
+                title: title
+            }, data).then(function (project) {
+                res.json({
+                    body: project
+                }, StatusCode.SUCCESS);
+            });
+        }, function (err) {
+            res.send({
+                err : {
+                    msg : err.toString()
+                }
+            }, StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED);
         });
     },
     trigger : function (req, res) {
@@ -99,9 +138,32 @@ module.exports = {
             });
         } else {
             Project.find().then(function (projects) {
-                res.send({
-                    body : projects
-                }, StatusCode.SUCCESS);
+
+                if (projects !== undefined) {
+
+                    // projects.forEach(function (project, index) {
+                    //     // add build result
+                    //     Task.findOne({
+                    //         projectTitle: project.title
+                    //     }).sort(
+                    //         'startTime DESC'
+                    //     ).then(function (task) {
+
+                    //         if (task !== undefined) {
+                    //             project.lastTaskStatus = task.status;
+                    //         }
+                    //     });
+                    // });
+                    res.send({
+                        body : projects
+                    }, StatusCode.SUCCESS);
+                }
+                else {
+
+                    res.send({
+                        body : projects
+                    }, StatusCode.SUCCESS);
+                }
             });
         }
     },
