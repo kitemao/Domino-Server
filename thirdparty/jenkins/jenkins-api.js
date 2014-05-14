@@ -83,10 +83,15 @@ var jenkinsAPI = {
             },
             body : config
         }, function (err, res, body) {
-            if (res.statusCode === 200) {
-                deferred.resolve(res);
-            } else {
-                deferred.reject(new Error(body));
+            if (err) {
+                deferred.reject(new Error(err));
+            }
+            else {
+                if (res.statusCode === 200) {
+                    deferred.resolve(res);
+                } else {
+                    deferred.reject(new Error(body));
+                }
             }
         });
 

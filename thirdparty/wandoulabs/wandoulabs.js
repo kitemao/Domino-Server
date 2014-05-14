@@ -21,7 +21,8 @@ module.exports = {
                 return item + '@wandoujia.com';
             }),
             url : data.url,
-            type: taskName === 'deploy-staging' ? 'staging' : 'production'
+            type: taskName === 'deploy-staging' ? 'staging' : 'production',
+            script: data.script
         });
 
         request({

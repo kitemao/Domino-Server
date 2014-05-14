@@ -7,7 +7,10 @@ module.exports = {
         order: 'INTEGER',
         event: 'STRING',
         type: 'INTEGER',
-        script: 'STRING',
+        script: {
+            type: 'STRING',
+            defaultsTo: 'cd $source_dir; npm i && bower install && grunt build:$type'
+        },
 
         run : function (accountName) {
             Task.create({
