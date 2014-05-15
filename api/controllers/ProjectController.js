@@ -46,10 +46,30 @@ function dealData(data) {
 }
 
 function updateBuildScirpt(data) {
-    return Q.all([
-        WandouLabs.updateBuildingScriptAsync(data, 'deploy-staging'),
-        WandouLabs.updateBuildingScriptAsync(data, 'deploy-production')
-    ]);
+    var deferred = Q.defer();
+
+    Hook.find({
+        projectTitle: data.title
+    }).then(function (hooks) {
+        var stagingData    = _.clone(data);
+        var productionData = _.clone(data);
+
+        _.each(hooks, function (hook) {
+            if (hook.title === 'Build Staging') {
+                stagingData.script = hook.script;
+            }
+            else if (hook.title === 'Build Production') {
+                productionData.script = hook.script;
+            }
+        });
+
+        Q.all([
+            WandouLabs.updateBuildingScriptAsync(stagingData, 'deploy-staging'),
+            WandouLabs.updateBuildingScriptAsync(productionData, 'deploy-production')
+        ]).then(deferred.resolve, deferred.reject);
+    });
+
+    return deferred.promise;
 }
 
 module.exports = {
@@ -74,12 +94,11 @@ module.exports = {
         var data = req.body;
         data = dealData(data);
 
-        // 更新文档
-        updateBuildScirpt(data).then(function () {
-            //更新项目
-            Project.update({
-                title: title
-            }, data).then(function (project) {
+        Project.update({
+            title: title
+        }, data).then(function (project) {
+
+            updateBuildScirpt(data).then(function () {
                 res.json({
                     body: project
                 }, StatusCode.SUCCESS);
