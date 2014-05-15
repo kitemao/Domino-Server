@@ -278,5 +278,30 @@ module.exports = {
                 }
             }
         });
+    },
+    destroy: function (req, res) {
+        var title = req.param('title');
+
+        if (typeof title !== 'undefined') {
+            // TODO: 目前deploy xml为手动删除，后续push rd添加api，改为自动删除
+
+            // 删除jenkins
+            Jenkins.deleteJobsAsync({title: title}).then(function () {
+                // 删除项目
+                Project.destroy({
+                    title: title
+                }).done(function (err) {
+                    if (!err) {
+                        res.send({}, StatusCode.SUCCESS);
+                    }
+                });
+            }, function (err) {
+                res.send({
+                    err: {
+                        msg : err.toString()
+                    }
+                }, StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED);
+            });
+        }
     }
 };

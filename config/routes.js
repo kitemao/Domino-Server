@@ -11,6 +11,11 @@ module.exports.routes = {
         controller : 'project',
         action : 'updata'
     },
+    'delete /project/:title': {
+        controller : 'project',
+        action : 'destroy'
+    },
+
     'get /project/:title/task' : {
         controller : 'task',
         action : 'find'
