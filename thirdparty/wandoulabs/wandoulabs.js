@@ -25,6 +25,8 @@ module.exports = {
             script: data.script
         });
 
+        console.log('xml:' + script);
+
         request({
             method: 'POST',
             url: 'http://deploy.wandoulabs.com/apisave',

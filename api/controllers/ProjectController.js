@@ -287,14 +287,22 @@ module.exports = {
 
             // 删除jenkins
             Jenkins.deleteJobsAsync({title: title}).then(function () {
-                // 删除项目
-                Project.destroy({
-                    title: title
-                }).done(function (err) {
-                    if (!err) {
+                // 删除项目和hook
+                // ps: 暂定先不删除task, 由于task属于一种只读数据，先保留
+                Q.all([
+                    Project.destroy({ title: title }),
+                    Hook.destroy({ projectTitle: title })
+                ])
+                .then(
+                    function () {
                         res.send({}, StatusCode.SUCCESS);
+                    },
+                    function (err) {
+                        res.send({
+                            err: { msg: err }
+                        }, StatusCode.INTERNAL_ERROR);
                     }
-                });
+                );
             }, function (err) {
                 res.send({
                     err: {
