@@ -83,10 +83,15 @@ var jenkinsAPI = {
             },
             body : config
         }, function (err, res, body) {
-            if (res.statusCode === 200) {
-                deferred.resolve(res);
-            } else {
-                deferred.reject(new Error(body));
+            if (err) {
+                deferred.reject(new Error(err));
+            }
+            else {
+                if (res.statusCode === 200) {
+                    deferred.resolve(res);
+                } else {
+                    deferred.reject(new Error(body));
+                }
             }
         });
 
@@ -118,7 +123,8 @@ var jenkinsAPI = {
             method : 'POST',
             url : '/job/' + name + '/doDelete'
         }, function (err, res, body) {
-            if (res.statusCode === 200 || res.statusCode === 302) {
+            // 如果jenkins没有此项目也标志为成功，目的就是jenkins中没有此项目
+            if (res.statusCode === 200 || res.statusCode === 302 || res.statusCode === 404) {
                 deferred.resolve(res);
             } else {
                 deferred.reject(new Error(body));

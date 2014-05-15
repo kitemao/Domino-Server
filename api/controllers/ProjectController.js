@@ -1,6 +1,8 @@
 var Q = require('q');
 var yaml = require('js-yaml');
 
+var _ = require('underscore');
+
 var fs = require('fs');
 
 var StatusCode = require('../../utils/StatusCodeMapping');
@@ -11,39 +13,25 @@ var WandouLabs = require('../../thirdparty/wandoulabs/wandoulabs');
 var generateTemplateHooksAsync = function (title) {
     var deferred = Q.defer();
 
-    var runAsync = function (task) {
-        var deferred = Q.defer();
-
-        task.then(function (hook) {
-            deferred.resolve(hook);
-        }, function (err) {
-            deferred.reject(err);
-        });
-
-        return deferred.promise;
-    };
-
     var templates = [{
         title : 'Build Staging',
         projectTitle : title,
         order : -1,
         event : 'buildStaging',
-        type : 0,
-        script : ''
+        type : 0
     }, {
         title : 'Build Production',
         projectTitle : title,
         order : -1,
         event : 'buildProduction',
-        type : 0,
-        script : ''
+        type : 0
     }];
 
     Q.all([
         Hook.create(templates[0]),
         Hook.create(templates[1])
-    ]).then(function () {
-        deferred.resolve();
+    ]).then(function (result) {
+        deferred.resolve(result);
     });
 
     return deferred.promise;
@@ -58,10 +46,30 @@ function dealData(data) {
 }
 
 function updateBuildScirpt(data) {
-    return Q.all([
-        WandouLabs.updateBuildingScriptAsync(data, 'deploy-staging'),
-        WandouLabs.updateBuildingScriptAsync(data, 'deploy-production')
-    ]);
+    var deferred = Q.defer();
+
+    Hook.find({
+        projectTitle: data.title
+    }).then(function (hooks) {
+        var stagingData    = _.clone(data);
+        var productionData = _.clone(data);
+
+        _.each(hooks, function (hook) {
+            if (hook.title === 'Build Staging') {
+                stagingData.script = hook.script;
+            }
+            else if (hook.title === 'Build Production') {
+                productionData.script = hook.script;
+            }
+        });
+
+        Q.all([
+            WandouLabs.updateBuildingScriptAsync(stagingData, 'deploy-staging'),
+            WandouLabs.updateBuildingScriptAsync(productionData, 'deploy-production')
+        ]).then(deferred.resolve, deferred.reject);
+    });
+
+    return deferred.promise;
 }
 
 module.exports = {
@@ -86,12 +94,11 @@ module.exports = {
         var data = req.body;
         data = dealData(data);
 
-        // 更新文档
-        updateBuildScirpt(data).then(function () {
-            //更新项目
-            Project.update({
-                title: title
-            }, data).then(function (project) {
+        Project.update({
+            title: title
+        }, data).then(function (project) {
+
+            updateBuildScirpt(data).then(function () {
                 res.json({
                     body: project
                 }, StatusCode.SUCCESS);
@@ -174,7 +181,7 @@ module.exports = {
         data.notificationList = data.notificationList.split('|');
 
         var createProject = function () {
-            Project.create({
+            return Project.create({
                 title : data.title,
                 description : data.description,
                 url : data.url,
@@ -182,17 +189,7 @@ module.exports = {
                 stagingServers : data.stagingServers,
                 productionServers : data.productionServers,
                 notificationList : data.notificationList
-            }).then(function (project) {
-                generateTemplateHooksAsync(project.title).then(function () {
-                    res.json({
-                        body : project
-                    }, StatusCode.SUCCESS);
-                }, function () {
-                    res.json({
-                        body : project
-                    }, StatusCode.SUCCESS);
-                });
-            }, function (err) {
+            }).fail(function (err) {
                 res.json({
                     err : {
                         msg : err
@@ -202,9 +199,8 @@ module.exports = {
         };
 
         var createProjectOnJenkins = function () {
-            Jenkins.createJobsAsync(data).then(function () {
-                createProject.call(this);
-            }, function (err) {
+            console.info(data);
+            return Jenkins.createJobsAsync(data).fail(function (err) {
                 res.send({
                     err : {
                         msg : err.toString()
@@ -212,6 +208,26 @@ module.exports = {
                 }, StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED);
             });
         };
+
+        var dealWithProjectOnJenkins = function () {
+
+            if (process.env.NODE_ENV === 'production') {
+
+                return createProjectOnJenkins();
+            } else {
+                var deferred = Q.defer();
+
+                Jenkins.deleteJobsAsync(data).fin(function () {
+                    createProjectOnJenkins().then(deferred.resolve, deferred.reject);
+                });
+
+                return deferred.promise;
+            }
+        };
+
+        // then(function () {
+        //         createProject.call(this);
+        //     },
 
         // Check if the project already exists.
         Project.findOne({
@@ -228,28 +244,72 @@ module.exports = {
                 if (process.env.NODE_ENV === 'test') {
                     createProject.call(this);
                 } else {
-                    // Generate config files for deploy tasks.
-                    Q.all([
-                        WandouLabs.updateBuildingScriptAsync(data, 'deploy-staging'),
-                        WandouLabs.updateBuildingScriptAsync(data, 'deploy-production')
-                    ]).then(function () {
-                        // Generate new jobs on Jenkins
-                        if (process.env.NODE_ENV === 'production') {
-                            createProjectOnJenkins.call(this);
-                        } else {
-                            Jenkins.deleteJobsAsync(data).fin(function () {
-                                createProjectOnJenkins.call(this);
+
+                    // 创建domino项目，先进行数据校验
+                    createProject().then(function (project) {
+                        Q.all([
+                            dealWithProjectOnJenkins(), // 创建Jenkins项目
+                            generateTemplateHooksAsync(data.title) // 创建hook
+                        ]).then(function (result) {
+
+                            var stagingData = _.extend({script: result[1][0]['script']}, data);
+                            var productionData = _.extend({script: result[1][1]['script']}, data);
+
+                            // 创建deploy tasks
+                            // 需要project data 和 hook data
+                            Q.all([
+                                WandouLabs.updateBuildingScriptAsync(stagingData, 'deploy-staging'),
+                                WandouLabs.updateBuildingScriptAsync(productionData, 'deploy-production')
+                            ]).then(function () {
+                                res.json({
+                                    body : project
+                                }, StatusCode.SUCCESS);
+
+                            }, function (err) {
+                                res.send({
+                                    err : {
+                                        msg : err.toString()
+                                    }
+                                }, StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED);
                             });
-                        }
-                    }, function (err) {
-                        res.send({
-                            err : {
-                                msg : err.toString()
-                            }
-                        }, StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED);
+                        });
+
                     });
                 }
             }
         });
+    },
+    destroy: function (req, res) {
+        var title = req.param('title');
+
+        if (typeof title !== 'undefined') {
+            // TODO: 目前deploy xml为手动删除，后续push rd添加api，改为自动删除
+
+            // 删除jenkins
+            Jenkins.deleteJobsAsync({title: title}).then(function () {
+                // 删除项目和hook
+                // ps: 暂定先不删除task, 由于task属于一种只读数据，先保留
+                Q.all([
+                    Project.destroy({ title: title }),
+                    Hook.destroy({ projectTitle: title })
+                ])
+                .then(
+                    function () {
+                        res.send({}, StatusCode.SUCCESS);
+                    },
+                    function (err) {
+                        res.send({
+                            err: { msg: err }
+                        }, StatusCode.INTERNAL_ERROR);
+                    }
+                );
+            }, function (err) {
+                res.send({
+                    err: {
+                        msg : err.toString()
+                    }
+                }, StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED);
+            });
+        }
     }
 };
