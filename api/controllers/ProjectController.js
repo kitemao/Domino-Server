@@ -148,22 +148,11 @@ module.exports = {
 
                 if (projects !== undefined) {
 
-                    // projects.forEach(function (project, index) {
-                    //     // add build result
-                    //     Task.findOne({
-                    //         projectTitle: project.title
-                    //     }).sort(
-                    //         'startTime DESC'
-                    //     ).then(function (task) {
-
-                    //         if (task !== undefined) {
-                    //             project.lastTaskStatus = task.status;
-                    //         }
-                    //     });
-                    // });
-                    res.send({
-                        body : projects
-                    }, StatusCode.SUCCESS);
+                    findTaskStatus(projects).then(function () {
+                        res.send({
+                            body : projects
+                        }, StatusCode.SUCCESS);
+                    });
                 }
                 else {
 
@@ -172,6 +161,45 @@ module.exports = {
                     }, StatusCode.SUCCESS);
                 }
             });
+        }
+
+        // TODO: 目前查表的复杂度有些高，看是否可以优化
+        function findTaskStatus(projects) {
+            var deferred = new Q.defer();
+
+            var i = 0;
+            var len = projects.length;
+
+            projects.forEach(function (project, index) {
+                // add build result
+                Task.findOne({
+                    projectTitle: project.title,
+                    title: 'Build Staging'
+                }).sort(
+                    'startTime DESC'
+                ).done(function (error, task) {
+                    if (task !== undefined) {
+                        project.lastStagTask = task;
+                    }
+
+                    Task.findOne({
+                        projectTitle: project.title,
+                        title: 'Build Production'
+                    }).sort(
+                        'startTime DESC'
+                    ).done(function (err, task) {
+                        if (task !== undefined) {
+                            project.lastProTask = task;
+                        }
+
+                        if ((++i) === len) {
+                            deferred.resolve(projects);
+                        }
+                    });
+                });
+            });
+
+            return deferred.promise;
         }
     },
     create : function (req, res) {
@@ -232,7 +260,7 @@ module.exports = {
         // Check if the project already exists.
         Project.findOne({
             title : data.title
-        }).done(function (err, project) {
+        }).then(function (project) {
             if (project !== undefined) {
                 res.send({
                     err : {
