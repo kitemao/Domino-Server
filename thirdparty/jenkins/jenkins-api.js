@@ -41,7 +41,9 @@ var jenkinsAPI = {
             start = start || 0;
             jenkinsAPI.fetchProgressAsync(url, start).then(function (res) {
                 if (res.headers['x-more-data']) {
-                    readProgressAsync(parseInt(res.headers['x-text-size'], 10));
+                    setTimeout(function () {
+                        readProgressAsync(parseInt(res.headers['x-text-size'], 10));
+                    }, 3000);
                 } else {
                     deferred.resolve();
                 }
@@ -135,17 +137,31 @@ var jenkinsAPI = {
     },
     runJobAsync : function (name) {
         var deferred = Q.defer();
+        console.log('begin set jenkins build');
 
-        requestJenkins({
-            method : 'POST',
-            url : '/job/' + name + '/build'
-        }, function (err, res, body) {
-            if (res.statusCode === 201) {
-                deferred.resolve(res.headers.location);
-            } else {
-                deferred.reject(new Error(body));
-            }
-        });
+        function requestApi() {
+            requestJenkins({
+                method : 'POST',
+                url : '/job/' + name + '/build'
+            }, function (err, res, body) {
+                console.log('jenkins build statusCode:', res.statusCode);
+                if (res.statusCode === 201) {
+                    deferred.resolve(res.headers.location);
+                }
+                else if (res.statusCode === 401) {
+
+                    // jenkins sometimes will report 401 error, can i fuck a xia xia?
+                    setTimeout(function () {
+                        requestApi();
+                    }, 1000);
+                }
+                else {
+                    deferred.reject(new Error(body));
+                }
+            });
+        }
+
+        requestApi();
 
         return deferred.promise;
     },
@@ -179,20 +195,36 @@ var jenkinsAPI = {
 
         url += 'logText/' + type;
 
-        request({
-            method : 'GET',
-            url : url,
-            qs : {
-                start : start || 0
-            },
-            auth : auth
-        }, function (err, res, body) {
-            if (res.statusCode === 200) {
-                deferred.resolve(res);
-            } else {
-                deferred.resolve(new Error(body));
-            }
-        });
+        // todo: jenkins经常抽风401，所以多次轮训获取最后结果
+        function requestApi() {
+            request({
+                method : 'GET',
+                url : url,
+                qs : {
+                    start : start || 0
+                },
+                auth : auth
+            }, function (err, res, body) {
+                console.log('jenkins build statusCode:', res.statusCode);
+                if (res.statusCode === 200) {
+
+                    deferred.resolve(res);
+                }
+                else if (res.statusCode === 401) {
+
+                    setTimeout(function () {
+
+                        requestApi();
+                    }, 3000);
+                }
+                else {
+
+                    deferred.resolve(new Error(body));
+                }
+            });
+        }
+
+        requestApi();
 
         return deferred.promise;
     }

@@ -88,6 +88,7 @@ module.exports = {
                         });
                     }).then(function () {
                         JenkinsAPI.getBuildStatusAsync(res.body.executable.url).then(function (res) {
+                            console.log('task build result:', res.body.result);
                             Task.update({
                                 id: task.id
                             }, {
@@ -113,6 +114,7 @@ module.exports = {
         var deferred = Q.defer();
 
         JenkinsAPI.runJobAsync(title + '-deploy-' + type).then(function (location) {
+            console.log('begin task to queue');
             Task.update({
                 id: task.id
             }, {
