@@ -98,6 +98,7 @@ module.exports = {
                             }, {
                                 endTime: new Date(),
                                 status: res.body.result === 'SUCCESS' ? Task.enums.STATUS.SUCCESS : Task.enums.STATUS.FAILED,
+                                reviewStatus: res.body.result === 'SUCCESS' ? Task.enums.REVIEWSTATUS.UNCHECK : Task.enums.REVIEWSTATUS.WRONG,
                                 log: log
                             }).then(function (task) {
                                 return;
@@ -157,7 +158,8 @@ module.exports = {
                         }, {
                             endTime: new Date(task.startTime.getTime() + build.duration),
                             // todo: 有可能拿到的是正在运行的任务
-                            status: build.result === 'SUCCESS' ? Task.enums.STATUS.SUCCESS : Task.enums.STATUS.FAILED
+                            status: build.result === 'SUCCESS' ? Task.enums.STATUS.SUCCESS : Task.enums.STATUS.FAILED,
+                            reviewStatus: res.body.result === 'SUCCESS' ? Task.enums.REVIEWSTATUS.UNCHECK : Task.enums.REVIEWSTATUS.WRONG
                         }).then(function () {
                             return;
                         });

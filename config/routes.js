@@ -36,6 +36,11 @@ module.exports.routes = {
         controller : 'task',
         action : 'find'
     },
+    'put /task/review' : {
+        controller : 'task',
+        action : 'review'
+    },
+
     'put /hook/:id' : {
         controller: 'hook',
         action: 'update'

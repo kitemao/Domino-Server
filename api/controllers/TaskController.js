@@ -48,5 +48,21 @@ module.exports = {
                 }, StatusCode.SUCCESS);
             });
         }
+    },
+
+    review: function (res, req) {
+        console.log(res.param);
+        var id = res.param('id');
+        var reviewStatus = res.param('reviewStatus');
+
+        if (id !== undefined) {
+
+            Task.update({_id: id}, {reviewStatus: reviewStatus})
+                .then(function (task) {
+                    req.json({
+                        body: task
+                    }, StatusCode.SUCCESS);
+                });
+        }
     }
 };
