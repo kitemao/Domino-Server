@@ -9,7 +9,7 @@ case 'test':
 case 'development':
     config = rc('dominodev');
     break;
-case 'producation':
+case 'production':
     config = rc('dominoprod');
     break;
 }

@@ -20,6 +20,11 @@ module.exports = {
 
         gapis.discover('plus', 'v1')
             .execute(function (err, client) {
+                if (err) {
+                    deferred.reject(err);
+                    return;
+                }
+
                 client.plus.people.get({
                     userId: 'me'
                 })

@@ -16,7 +16,8 @@ module.exports.policies = {
     '*': false,
 
     ProjectController: {
-        '*': 'sessionAuth'
+        '*': 'sessionAuth',
+        'trigger': [ 'sessionAuth', 'hasPublishAuth' ]
     },
 
     TaskController: {

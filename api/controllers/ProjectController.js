@@ -177,7 +177,7 @@ module.exports = {
                     title: 'Build Staging'
                 }).sort(
                     'startTime DESC'
-                ).done(function (error, task) {
+                ).then(function (task) {
                     if (task !== undefined) {
                         project.lastStagTask = task;
                     }
@@ -187,7 +187,7 @@ module.exports = {
                         title: 'Build Production'
                     }).sort(
                         'startTime DESC'
-                    ).done(function (err, task) {
+                    ).then(function (task) {
                         if (task !== undefined) {
                             project.lastProTask = task;
                         }

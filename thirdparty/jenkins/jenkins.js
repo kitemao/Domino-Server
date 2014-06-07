@@ -11,12 +11,16 @@ var JenkinsAPI = require('./jenkins-api')
 
 var newJenkinsJobTpl = ejs.compile(fs.readFileSync(__dirname + '/jenkinsJob.ejs', 'utf8'));
 
+var postfix = config.JENKINS_PROJECT_POSTFIX || 'deploy';
+var postfixStaging = '-' + postfix + '-staging';
+var postfixProduction = '-' + postfix + '-production';
+
 module.exports = {
     createJobsAsync: function (data) {
         var deferred = Q.defer();
 
-        var staingJobName = data.title + '-deploy-staging';
-        var productionJobName = data.title + '-deploy-production';
+        var staingJobName = data.title + postfixStaging;
+        var productionJobName = data.title + postfixProduction;
 
         Q.all([
             JenkinsAPI.createJobAsync(staingJobName, newJenkinsJobTpl({
@@ -50,8 +54,8 @@ module.exports = {
         var deferred = Q.defer();
 
         Q.all([
-            JenkinsAPI.deleteJobAsync(data.title + '-deploy-staging'),
-            JenkinsAPI.deleteJobAsync(data.title + '-deploy-production'),
+            JenkinsAPI.deleteJobAsync(data.title + postfixStaging),
+            JenkinsAPI.deleteJobAsync(data.title + postfixProduction),
         ]).then(function () {
             deferred.resolve();
         }, function (err) {
@@ -94,6 +98,7 @@ module.exports = {
                             }, {
                                 endTime: new Date(),
                                 status: res.body.result === 'SUCCESS' ? Task.enums.STATUS.SUCCESS : Task.enums.STATUS.FAILED,
+                                reviewStatus: res.body.result === 'SUCCESS' ? Task.enums.REVIEWSTATUS.UNCHECK : Task.enums.REVIEWSTATUS.WRONG,
                                 log: log
                             }).then(function (task) {
                                 return;
@@ -113,7 +118,7 @@ module.exports = {
     runJobAsync: function (title, type, task) {
         var deferred = Q.defer();
 
-        JenkinsAPI.runJobAsync(title + '-deploy-' + type).then(function (location) {
+        JenkinsAPI.runJobAsync(title + '-' + postfix + '-' + type).then(function (location) {
             console.log('begin task to queue');
             Task.update({
                 id: task.id
@@ -153,7 +158,8 @@ module.exports = {
                         }, {
                             endTime: new Date(task.startTime.getTime() + build.duration),
                             // todo: 有可能拿到的是正在运行的任务
-                            status: build.result === 'SUCCESS' ? Task.enums.STATUS.SUCCESS : Task.enums.STATUS.FAILED
+                            status: build.result === 'SUCCESS' ? Task.enums.STATUS.SUCCESS : Task.enums.STATUS.FAILED,
+                            reviewStatus: res.body.result === 'SUCCESS' ? Task.enums.REVIEWSTATUS.UNCHECK : Task.enums.REVIEWSTATUS.WRONG
                         }).then(function () {
                             return;
                         });
