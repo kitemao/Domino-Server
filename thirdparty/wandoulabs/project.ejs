@@ -4,9 +4,9 @@
         <service><%= title %></service>
         <type><%= type %></type>
         <source_dir>/home/work/srcs/$service_$type</source_dir>
-        <install_dir>/home/work/static/$service</install_dir>
+        <install_dir>/home/work/dist/$service</install_dir>
         <backup_dir>/home/work/backup/$service</backup_dir>
-        <deploy_dir>/home/work/dist/$service</deploy_dir>
+        <deploy_dir>/home/work/deploy/$service</deploy_dir>
         <tmp_dir>$backup_dir/tmp</tmp_dir>
         <mailto>
             <%= receivers.join(',') %>
@@ -16,12 +16,21 @@
         <hosts><%= servers.join(',') %></hosts>
         <action name="compile">
             <work_space>$source_dir</work_space>
+            <version><%=version %></version>
             <git_clone>git clone <%= url %> $source_dir</git_clone>
             <compile_cmd><![CDATA[<%= script %>]]></compile_cmd>
         </action>
         <action name="deploy">
             <deploy_dir>$deploy_dir</deploy_dir>
             <deploy_items>$source_dir/dist/*</deploy_items>
+        </action>
+        <action name="install">
+            <start_cmd>
+                echo "start"
+            </start_cmd>
+            <stop_cmd>
+                echo "stop"
+            </stop_cmd>
         </action>
     </job>
 </task>

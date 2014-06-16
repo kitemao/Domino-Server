@@ -111,6 +111,7 @@ module.exports = {
             }, StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED);
         });
     },
+
     trigger : function (req, res) {
         var title = req.param('title');
         var evt = req.param('evt');
@@ -120,15 +121,51 @@ module.exports = {
             event: evt
         }).then(function (hook) {
             if (hook !== undefined) {
-                hook.run(req.session.accountName);
-                res.send({
-                    body : hook
-                }, StatusCode.SUCCESS);
+                Project.findOne({
+                    title: title
+                }).then(function (project) {
+                    // 重新更新
+                    project.version = req.body.branch;
+
+                    updateBuildScirpt(project).then(function () {
+                        hook.run(req.body, req.session.accountName);
+                        res.send({
+                            body : hook
+                        }, StatusCode.SUCCESS);
+                    });
+                }, function (err) {
+                    res.send({
+                        err : {
+                            msg : err.toString()
+                        }
+                    }, StatusCode.COMMUNICATION_WITH_THIRDPARTY_FAILED);
+                });
             } else {
                 res.send({}, StatusCode.NOT_FOUND);
             }
         });
     },
+
+    /**
+     * 回滚
+     */
+    rollback: function (req, res) {
+        var title = req.param('title');
+
+        Task.create({
+            startTime: new Date(),
+            status: Task.enums.STATUS.CREATED,
+            projectTitle: title,
+            title: 'Rollback',
+            initor: req.session.accountName,
+            branch: ''
+        }).then(function (task) {
+
+            Jenkins.runJobAsync(title, 'production-rollback', task);
+        }.bind(this));
+    },
+
+
     find : function (req, res) {
         var title = req.param('title');
         if (title !== undefined) {

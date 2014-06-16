@@ -24,10 +24,16 @@ module.exports.routes = {
         controller : 'project',
         action : 'hooks'
     },
-    'post /project/:title/trigger/:evt': {
+    'put /project/:title/trigger/:evt': {
         controller : 'project',
         action : 'trigger'
     },
+
+    'get /project/:title/rollback': {
+        controller : 'project',
+        action : 'rollback'
+    },
+
     // 'get /hook/template/:type' : {
     //     controller : 'hook',
     //     action : 'template'
