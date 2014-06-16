@@ -1,4 +1,6 @@
 var gplusSignIn = require('../../thirdparty/google/auth');
+var authCfg     = require('../../permission/auth');
+var _           = require('underscore');
 
 module.exports = {
     auth: function  (req, res) {
@@ -17,12 +19,23 @@ module.exports = {
         req.session.authenticated = true;
         req.session.accountName = accountName;
 
-        //var displayName = user.displayName;
+        // 处理用户的权限
+        var userAuth = {};
+        _.each(authCfg, function (auth, authKey) {
+
+            auth = _.isArray(auth) ?  auth : auth[process.env.NODE_ENV];
+
+            if (_.contains(auth, accountName)) {
+
+                userAuth[authKey] = true;
+            }
+        });
 
         res.send({
             body: {
                 accountName: accountName,
-                displayName: displayName
+                displayName: displayName,
+                auth: userAuth
             }
         }, 200);
 
