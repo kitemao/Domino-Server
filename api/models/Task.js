@@ -33,6 +33,7 @@ module.exports = {
         title: 'STRING',
         entrance: 'STRING',
         log: 'STRING',
+        branch: 'STRING',
         reviewStatus: {
             type: 'INTEGER',
             defaultsTo: 0
@@ -67,9 +68,9 @@ module.exports = {
         function sendMail(time, emailType) {
             var deferred = Q.defer();
 
+            console.log('mail:' + task.id + ';time:', time);
             setTimeout(function () {
-                console.log('begin to monitor');
-
+                console.log('mail begin:' + task.id);
 
                 Task.findOne({_id: task.id}).then(function (t) {
                     // 如果没有review, 则发邮件进行提醒

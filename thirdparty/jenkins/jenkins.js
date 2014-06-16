@@ -21,24 +21,35 @@ module.exports = {
 
         var staingJobName = data.title + postfixStaging;
         var productionJobName = data.title + postfixProduction;
+        var rollbackJobName = productionJobName + '-rollback';
 
         Q.all([
             JenkinsAPI.createJobAsync(staingJobName, newJenkinsJobTpl({
                 description: data.description,
                 title: data.title,
                 taskName: 'deploy-staging',
-                configPath: config.WANDOULABS_AUTODEPLOY_SRC
+                configPath: config.WANDOULABS_AUTODEPLOY_SRC,
+                action: '-u'
             })),
             JenkinsAPI.createJobAsync(productionJobName, newJenkinsJobTpl({
                 description: data.description,
                 title: data.title,
                 taskName: 'deploy-production',
-                configPath: config.WANDOULABS_AUTODEPLOY_SRC
-            }))
+                configPath: config.WANDOULABS_AUTODEPLOY_SRC,
+                action: '-u'
+            })),
+            JenkinsAPI.createJobAsync(rollbackJobName, newJenkinsJobTpl({
+                description: data.description,
+                title: data.title,
+                taskName: 'deploy-production',
+                configPath: config.WANDOULABS_AUTODEPLOY_SRC,
+                action: '-r'
+            })),
         ]).then(function () {
             Q.all([
                 JenkinsAPI.addJobToView(config.JENKINS_VIEW_NAME, staingJobName),
-                JenkinsAPI.addJobToView(config.JENKINS_VIEW_NAME, productionJobName)
+                JenkinsAPI.addJobToView(config.JENKINS_VIEW_NAME, productionJobName),
+                JenkinsAPI.addJobToView(config.JENKINS_VIEW_NAME, rollbackJobName)
             ]).then(function () {
                 deferred.resolve();
             }, function (err) {
@@ -56,6 +67,7 @@ module.exports = {
         Q.all([
             JenkinsAPI.deleteJobAsync(data.title + postfixStaging),
             JenkinsAPI.deleteJobAsync(data.title + postfixProduction),
+            JenkinsAPI.deleteJobAsync(data.title + postfixProduction + '-rollback')
         ]).then(function () {
             deferred.resolve();
         }, function (err) {

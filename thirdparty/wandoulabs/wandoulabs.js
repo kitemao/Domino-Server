@@ -13,7 +13,7 @@ var newProjectTpl = ejs.compile(fs.readFileSync(__dirname + '/../../thirdparty/w
 module.exports = {
     updateBuildingScriptAsync : function (data, taskName) {
         var deferred = Q.defer();
-
+        console.log(data);
         var script = newProjectTpl({
             title: data.title,
             servers: taskName === 'deploy-staging' ? data.stagingServers : data.productionServers,
@@ -22,7 +22,8 @@ module.exports = {
             }),
             url : data.url,
             type: taskName === 'deploy-staging' ? 'staging' : 'production',
-            script: data.script
+            script: data.script,
+            version: data.version || 'master'
         });
 
         console.log('xml:' + script);
