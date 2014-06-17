@@ -128,7 +128,10 @@ module.exports = {
                     project.version = req.body.branch;
 
                     updateBuildScirpt(project).then(function () {
-                        hook.run(req.body, req.session.accountName);
+                        hook.run({
+                            branch: req.body.branch,
+                            accountName: req.session.accountName
+                        });
                         res.send({
                             body : hook
                         }, StatusCode.SUCCESS);
