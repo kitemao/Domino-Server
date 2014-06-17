@@ -12,13 +12,14 @@ module.exports = {
             defaultsTo: 'cd $source_dir; npm i; bower install; grunt build:$type'
         },
 
-        run : function (accountName) {
+        run : function (opts) {
             Task.create({
                 startTime: new Date(),
                 status: Task.enums.STATUS.CREATED,
                 projectTitle: this.projectTitle,
                 title: this.title,
-                initor: accountName
+                initor: opts.accountName,
+                branch: opts.branch
             }).then(function (task) {
                 if (this.event === 'buildStaging') {
                     Jenkins.runJobAsync(task.projectTitle, 'staging', task);
