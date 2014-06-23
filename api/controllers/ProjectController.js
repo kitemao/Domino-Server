@@ -13,18 +13,22 @@ var WandouLabs = require('../../thirdparty/wandoulabs/wandoulabs');
 var generateTemplateHooksAsync = function (title) {
     var deferred = Q.defer();
 
+    var defScript = WandouLabs.getDefScript();
+
     var templates = [{
         title : 'Build Staging',
         projectTitle : title,
         order : -1,
         event : 'buildStaging',
-        type : 0
+        type : 0,
+        script: defScript
     }, {
         title : 'Build Production',
         projectTitle : title,
         order : -1,
         event : 'buildProduction',
-        type : 0
+        type : 0,
+        script: defScript
     }];
 
     Q.all([
@@ -326,8 +330,8 @@ module.exports = {
                             // 创建deploy tasks
                             // 需要project data 和 hook data
                             Q.all([
-                                WandouLabs.updateBuildingScriptAsync(stagingData, 'deploy-staging'),
-                                WandouLabs.updateBuildingScriptAsync(productionData, 'deploy-production')
+                                WandouLabs.updateBuildingScriptAsync(data, 'deploy-staging'),
+                                WandouLabs.updateBuildingScriptAsync(data, 'deploy-production')
                             ]).then(function () {
                                 res.json({
                                     body : project

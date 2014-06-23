@@ -1,20 +1,50 @@
-var fs = require('fs');
-
+var fs  = require('fs');
 var ejs = require('ejs');
-var Q = require('q');
+var Q   = require('q');
+var _   = require('underscore');
+
 var request = require('request');
+var yaml    = require('js-yaml');
 
-var config = require('../../config');
+var config  = require('../../config');
 
-var newProjectTpl = ejs.compile(fs.readFileSync(__dirname + '/../../thirdparty/wandoulabs/project.ejs', {
-    encoding: 'utf8'
-}));
+// 解析ejs模板文件
+var newProjectTpl = ejs.compile(
+    fs.readFileSync(__dirname + '/../../thirdparty/wandoulabs/project.ejs', {
+        encoding: 'utf8'
+    })
+);
+
+/**
+ * 将yaml解析为json
+ * @param  {string} script yaml字符串
+ */
+function parseYamlToJson(script) {
+    var doc;
+
+    try {
+        doc = yaml.safeLoad(script);
+    }
+    catch (e) {
+        throw new Error(e);
+    }
+
+    return doc;
+}
 
 module.exports = {
     updateBuildingScriptAsync : function (data, taskName) {
         var deferred = Q.defer();
-        console.log(data);
-        var script = newProjectTpl({
+        console.log('build labs xml', data);
+
+        // 解析yaml
+        var scriptJson = {};
+        if (data.script) {
+            scriptJson = parseYamlToJson(data.script);
+        }
+
+        // 项目数据
+        var defData = {
             title: data.title,
             servers: taskName === 'deploy-staging' ? data.stagingServers : data.productionServers,
             receivers: data.notificationList.map(function (item) {
@@ -22,9 +52,12 @@ module.exports = {
             }),
             url : data.url,
             type: taskName === 'deploy-staging' ? 'staging' : 'production',
-            script: data.script,
             version: data.version || 'master'
-        });
+        };
+
+        var tplData = _.extend({}, scriptJson, defData);
+
+        var script = newProjectTpl(tplData);
 
         console.log('xml:' + script);
 
@@ -46,5 +79,19 @@ module.exports = {
         });
 
         return deferred.promise;
+    },
+
+    /**
+     * 暴露默认的yaml配置脚本，以便外面使用
+     * @return {[string]} 为yaml脚本字符串
+     */
+    getDefScript: function () {
+
+        // 获取默认的脚本
+        // 默认脚本保存在第三方代码里，为了不污染hook,但需要创建hook的时候主动获取。。。。好矛盾呀。。。。
+        // todo: polish
+        return fs.readFileSync('./defaultScript.yml', {
+            encoding: 'utf8'
+        });
     }
 };

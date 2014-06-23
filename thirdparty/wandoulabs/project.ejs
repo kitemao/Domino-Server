@@ -18,7 +18,13 @@
             <work_space>$source_dir</work_space>
             <version><%=version %></version>
             <git_clone>git clone <%= url %> $source_dir</git_clone>
-            <compile_cmd><![CDATA[<%= script %>]]></compile_cmd>
+            <compile_cmd>
+                <![CDATA[
+                <% if (typeof compile !== "undefined" && compile.compile_cmd) {%>
+                    <%=: compile.compile_cmd | join:';'%>
+                <% } %>
+                ]]>
+            </compile_cmd>
         </action>
         <action name="deploy">
             <deploy_dir>$deploy_dir</deploy_dir>
@@ -26,10 +32,18 @@
         </action>
         <action name="install">
             <start_cmd>
-                echo "start"
+                <![CDATA[
+                <% if (typeof install !== "undefined" && install.start_cmd) {%>
+                    <%=: install.start_cmd | join:';'%>
+                <% } %>
+                ]]>
             </start_cmd>
             <stop_cmd>
-                echo "stop"
+                <![CDATA[
+                <% if (typeof install !== "undefined" && install.stop_cmd) {%>
+                    <%=: install.stop_cmd | join:';'%>
+                <% } %>
+                ]]>
             </stop_cmd>
         </action>
     </job>

@@ -1,0 +1,6 @@
+compile:
+    compile_cmd:
+        - cd $source_dir
+        - npm i
+        - bower install
+        - grunt build:$type
