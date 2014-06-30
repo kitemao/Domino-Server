@@ -1,4 +1,9 @@
 module.exports.routes = {
+    'get /account': {
+        controller : 'account',
+        action : 'find'
+    },
+
     'get /project/:title/trigger/:evt': {
         controller : 'project',
         action : 'trigger'

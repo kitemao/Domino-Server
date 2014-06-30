@@ -260,7 +260,11 @@ module.exports = {
                 type : parseInt(data.type, 10),
                 stagingServers : data.stagingServers,
                 productionServers : data.productionServers,
-                notificationList : data.notificationList
+                notificationList : data.notificationList,
+                developers: data.developers,
+                designers: data.designers,
+                managers: data.managers,
+                creater: req.session.accountName
             }).fail(function (err) {
                 res.json({
                     err : {

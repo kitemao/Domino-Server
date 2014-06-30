@@ -49,7 +49,30 @@ module.exports = {
         //     }, 403);
         // });
     },
-    logout: function (req, res) {
 
+    find: function (req, res) {
+        console.log('account.find');
+        var name = req.param.accountName;
+        if (name) {
+            if (name === req.session.accountName) {
+                User.findOne({ accountName: name }).then(function (userData) {
+                    if (userData) {
+                        res.send({
+                            body: userData
+                        }, 200);
+                    }
+                    // todo: no user
+                });
+            }
+        }
+        else {
+            User.find().then(function (userDatas) {
+                if (userDatas) {
+                    res.send({
+                        body: userDatas
+                    }, 200);
+                }
+            });
+        }
     }
 };
