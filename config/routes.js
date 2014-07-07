@@ -55,5 +55,30 @@ module.exports.routes = {
     'put /hook/:id' : {
         controller: 'hook',
         action: 'update'
+    },
+
+    'post /project/:projectTitle/cron' : {
+        controller: 'cron',
+        action: 'create'
+    },
+
+    'get /project/:projectTitle/cron' : {
+        controller: 'cron',
+        action: 'find'
+    },
+
+    'get /project/:projectTitle/cron/:title' : {
+        controller: 'cron',
+        action: 'find'
+    },
+
+    'put /project/:projectTitle/cron/:title' : {
+        controller: 'cron',
+        action: 'update'
+    },
+
+    'put /project/:projectTitle/cron/:title/toggle' : {
+        controller: 'cron',
+        action: 'toggle'
     }
 };

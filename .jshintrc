@@ -89,6 +89,7 @@
         "it" : true,
         "Project" : true,
         "Hook" : true,
+        "Cron" : true,
         "Task" : true,
         "User" : true,
         "sails" : true,

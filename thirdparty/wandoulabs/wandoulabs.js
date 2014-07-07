@@ -71,6 +71,7 @@ module.exports = {
                 content : script
             }
         }, function (err, res, body) {
+            console.log('cron:', res.statusCode);
             if (res.statusCode === 200) {
                 deferred.resolve(body);
             } else {
