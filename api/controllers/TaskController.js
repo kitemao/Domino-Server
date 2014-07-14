@@ -29,6 +29,8 @@ module.exports = {
                     body: results[1],
                     max: results[0]
                 }, StatusCode.SUCCESS);
+            }, function (err) {
+                console.error(err);
             });
         } else {
             queryTaskAsync = Task.find()
