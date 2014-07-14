@@ -328,8 +328,8 @@ module.exports = {
                             generateTemplateHooksAsync(data.title) // 创建hook
                         ]).then(function (result) {
 
-                            var stagingData = _.extend({script: result[1][0]['script']}, data);
-                            var productionData = _.extend({script: result[1][1]['script']}, data);
+                            var stagingData = _.extend({script: result[1][0].script}, data);
+                            var productionData = _.extend({script: result[1][1].script}, data);
 
                             // 创建deploy tasks
                             // 需要project data 和 hook data
