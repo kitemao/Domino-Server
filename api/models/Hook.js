@@ -9,7 +9,7 @@ module.exports = {
         type: 'INTEGER',
         script: {
             type: 'STRING',
-            defaultsTo: 'cd $source_dir; npm i; bower install; grunt build:$type'
+            defaultsTo: ''
         },
 
         run : function (opts) {

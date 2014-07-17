@@ -28,8 +28,16 @@ module.exports.policies = {
         '*': 'sessionAuth'
     },
 
+    cronController: {
+        '*': 'sessionAuth',
+        'toggle' : [ 'sessionAuth', 'projectOperateAuth' ],
+        'create' : [ 'sessionAuth', 'projectOperateAuth' ],
+        'update' : [ 'sessionAuth', 'projectOperateAuth' ]
+    },
+
     AccountController: {
-        '*': true
+        '*': 'sessionAuth',
+        'auth': []
     }
 };
 

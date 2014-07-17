@@ -50,5 +50,7 @@ try {
 
 // Start server
 sails.lift(rc('sails'), function () {
+    sails.services.cronservice.registerAllCron();
+
 	require('./thirdparty/jenkins/jenkins').syncTaskStatusWithJenkins();
 });

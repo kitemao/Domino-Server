@@ -107,6 +107,20 @@ module.exports = function (grunt) {
         }
     });
 
+    grunt.registerTask('miao', function () {
+
+        grunt.log.write('grunt.log.write');
+        grunt.verbose.write('grunt.verbose.write');
+        grunt.log.writeln('grunt.log.writeln');
+        grunt.verbose.writeln('grunt.verbose.writeln');
+
+
+        grunt.log.error('grunt.log.error');
+        grunt.log.error();
+        grunt.log.ok('grunt.log.ok');
+        grunt.log.subhead('grunt.log.subhead');
+    });
+
     grunt.registerTask('server', [
         'concurrent:server'
     ]);

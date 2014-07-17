@@ -13,18 +13,22 @@ var WandouLabs = require('../../thirdparty/wandoulabs/wandoulabs');
 var generateTemplateHooksAsync = function (title) {
     var deferred = Q.defer();
 
+    var defScript = WandouLabs.getDefScript();
+
     var templates = [{
         title : 'Build Staging',
         projectTitle : title,
         order : -1,
         event : 'buildStaging',
-        type : 0
+        type : 0,
+        script: defScript
     }, {
         title : 'Build Production',
         projectTitle : title,
         order : -1,
         event : 'buildProduction',
-        type : 0
+        type : 0,
+        script: defScript
     }];
 
     Q.all([
@@ -256,7 +260,11 @@ module.exports = {
                 type : parseInt(data.type, 10),
                 stagingServers : data.stagingServers,
                 productionServers : data.productionServers,
-                notificationList : data.notificationList
+                notificationList : data.notificationList,
+                developers: data.developers,
+                designers: data.designers,
+                managers: data.managers,
+                creater: req.session.accountName
             }).fail(function (err) {
                 res.json({
                     err : {
@@ -320,14 +328,14 @@ module.exports = {
                             generateTemplateHooksAsync(data.title) // 创建hook
                         ]).then(function (result) {
 
-                            var stagingData = _.extend({script: result[1][0]['script']}, data);
-                            var productionData = _.extend({script: result[1][1]['script']}, data);
+                            var stagingData = _.extend({script: result[1][0].script}, data);
+                            var productionData = _.extend({script: result[1][1].script}, data);
 
                             // 创建deploy tasks
                             // 需要project data 和 hook data
                             Q.all([
-                                WandouLabs.updateBuildingScriptAsync(stagingData, 'deploy-staging'),
-                                WandouLabs.updateBuildingScriptAsync(productionData, 'deploy-production')
+                                WandouLabs.updateBuildingScriptAsync(data, 'deploy-staging'),
+                                WandouLabs.updateBuildingScriptAsync(data, 'deploy-production')
                             ]).then(function () {
                                 res.json({
                                     body : project

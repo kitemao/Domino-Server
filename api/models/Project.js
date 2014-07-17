@@ -33,9 +33,10 @@ module.exports = {
             type : 'ARRAY',
             required : true
         },
-        manager : 'ARRAY',
-        designer : 'ARRAY',
-        develpoer : 'ARRAY',
+        creater : 'STRING',
+        managers : 'ARRAY',
+        designers : 'ARRAY',
+        developers : 'ARRAY',
         lastStagingBuild : 'STRING',
         lastProdctuionBuild : 'STRING'
     },

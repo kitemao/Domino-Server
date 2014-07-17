@@ -3,7 +3,8 @@
  */
 module.exports = {
 
-    freePublishPro: [
-        'miaojian'
+    // 超级权限
+    super: [
+        //'miaojian'
     ]
 };
