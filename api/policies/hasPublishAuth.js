@@ -15,6 +15,11 @@ module.exports = function (req, res, next) {
 
     var list        = permission[env];
 
+    if (process.env.NODE_ENV === 'test') {
+
+        return next();
+    }
+
 
     if (list && _.contains(list, accountName)) {
 
