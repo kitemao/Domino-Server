@@ -91,7 +91,7 @@ module.exports = {
         // 获取默认的脚本
         // 默认脚本保存在第三方代码里，为了不污染hook,但需要创建hook的时候主动获取。。。。好矛盾呀。。。。
         // todo: polish
-        return fs.readFileSync('./defaultScript.yml', {
+        return fs.readFileSync(__dirname + '/defaultScript.yml', {
             encoding: 'utf8'
         });
     }
