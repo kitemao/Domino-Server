@@ -36,6 +36,8 @@ var generateTemplateHooksAsync = function (title) {
         Hook.create(templates[1])
     ]).then(function (result) {
         deferred.resolve(result);
+    }, function (err) {
+        console.log(err);
     });
 
     return deferred.promise;
@@ -131,7 +133,7 @@ module.exports = {
                     // 重新更新
                     project.version = req.body.branch;
 
-                    updateBuildScirpt(project).then(function () {
+                    var handler = function () {
                         hook.run({
                             branch: req.body.branch,
                             accountName: req.session.accountName
@@ -139,7 +141,15 @@ module.exports = {
                         res.send({
                             body : hook
                         }, StatusCode.SUCCESS);
-                    });
+                    };
+
+                    if (process.env.NODE_ENV === 'test') {
+
+                        handler();
+                    }
+                    else {
+                        updateBuildScirpt(project).then(handler);
+                    }
                 }, function (err) {
                     res.send({
                         err : {
@@ -318,7 +328,17 @@ module.exports = {
                 }, StatusCode.RESOURCE_DUPLICATED);
             } else {
                 if (process.env.NODE_ENV === 'test') {
-                    createProject.call(this);
+                    createProject().then(function (project) {
+                        generateTemplateHooksAsync(project.title).then(function () {
+                            res.json({
+                                body : project
+                            }, StatusCode.SUCCESS);
+                        }, function () {
+                            res.json({
+                                body : project
+                            }, StatusCode.SUCCESS);
+                        });
+                    });
                 } else {
 
                     // 创建domino项目，先进行数据校验

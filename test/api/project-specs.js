@@ -30,7 +30,7 @@ describe('Test API suite: /api/project', function () {
     after(function (done) {
         Project.findOne({
             title : 'Domino-Test'
-        }).done(function (err, project) {
+        }).then(function (project) {
             project.destroy(function () {
                 app.lower(function (err) {
                     if (err) {
@@ -53,6 +53,9 @@ describe('Test API suite: /api/project', function () {
                     title : 'Domino-Test',
                     description : 'Domino test project. ',
                     type : 0,
+                    developers: ['miaojian'],
+                    designers: ['miaojian'],
+                    managers: ['miaojian'],
                     stagingServers : 'app150.hy01|app151.hy01',
                     productionServers : 'test111.hy01',
                     notificationList : 'wangye.zhao|miaojian',
@@ -127,7 +130,7 @@ describe('Test API suite: /api/project', function () {
     describe('Task actions. ', function () {
         it('Trigger an event. ', function (done) {
             request
-                .post('/project/Domino-Test/trigger/buildStaging')
+                .put('/project/Domino-Test/trigger/buildStaging')
                 .expect(200)
                 .end(done);
         });
