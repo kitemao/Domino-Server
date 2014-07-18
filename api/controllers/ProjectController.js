@@ -334,8 +334,8 @@ module.exports = {
                             // 创建deploy tasks
                             // 需要project data 和 hook data
                             Q.all([
-                                WandouLabs.updateBuildingScriptAsync(data, 'deploy-staging'),
-                                WandouLabs.updateBuildingScriptAsync(data, 'deploy-production')
+                                WandouLabs.updateBuildingScriptAsync(stagingData, 'deploy-staging'),
+                                WandouLabs.updateBuildingScriptAsync(productionData, 'deploy-production')
                             ]).then(function () {
                                 res.json({
                                     body : project
