@@ -20,6 +20,7 @@ module.exports = {
         'leplay',
         'lixiaopeng',
         'zhailin',
-        'zhangyaochun'
+        'zhangyaochun',
+        'netputer'
     ]
 };
