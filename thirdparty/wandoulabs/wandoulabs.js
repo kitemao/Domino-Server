@@ -1,7 +1,6 @@
 var fs  = require('fs');
 var ejs = require('ejs');
 var Q   = require('q');
-var _   = require('underscore');
 
 var request = require('request');
 var yaml    = require('js-yaml');
@@ -32,6 +31,22 @@ function parseYamlToJson(script) {
     return doc;
 }
 
+/**
+ * get nofitylist maxin notificationlist managers designers and developers
+ */
+function getNotifyListFromRole(data) {
+    var notificationList = data.notificationList || [];
+    var managers   = data.managers;
+    var designers  = data.designers;
+    var developers = data.developers;
+
+    var mixList = _.union(notificationList, managers, designers, developers);
+
+    return _.map(mixList, function (item) {
+        return item + '@wandoujia.com';
+    });
+}
+
 module.exports = {
     updateBuildingScriptAsync : function (data, taskName) {
         var deferred = Q.defer();
@@ -47,9 +62,7 @@ module.exports = {
         var defData = {
             title: data.title,
             servers: taskName === 'deploy-staging' ? data.stagingServers : data.productionServers,
-            receivers: data.notificationList.map(function (item) {
-                return item + '@wandoujia.com';
-            }),
+            receivers: getNotifyListFromRole(data),
             url : data.url,
             type: taskName === 'deploy-staging' ? 'staging' : 'production',
             version: data.version || 'master'

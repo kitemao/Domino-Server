@@ -93,6 +93,7 @@
         "Task" : true,
         "User" : true,
         "sails" : true,
-        "_" : true
+        "_"     : true,
+        "async" : true
     }        // additional predefined global variables
 }
