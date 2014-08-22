@@ -21,7 +21,7 @@
             <compile_cmd>
                 <![CDATA[
                 <% if (typeof compile !== "undefined" && compile.compile_cmd) {%>
-                    <%=: compile.compile_cmd | join:';'%>
+                    <%-: compile.compile_cmd | join:'&&'%>
                 <% } %>
                 ]]>
             </compile_cmd>
@@ -34,14 +34,14 @@
             <start_cmd>
                 <![CDATA[
                 <% if (typeof install !== "undefined" && install.start_cmd) {%>
-                    <%=: install.start_cmd | join:';'%>
+                    <%-: install.start_cmd | join:'&&'%>
                 <% } %>
                 ]]>
             </start_cmd>
             <stop_cmd>
                 <![CDATA[
                 <% if (typeof install !== "undefined" && install.stop_cmd) {%>
-                    <%=: install.stop_cmd | join:';'%>
+                    <%-: install.stop_cmd | join:'&&'%>
                 <% } %>
                 ]]>
             </stop_cmd>

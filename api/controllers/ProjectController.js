@@ -44,9 +44,11 @@ var generateTemplateHooksAsync = function (title) {
 };
 
 function dealData(data) {
-    data.stagingServers = data.stagingServers.split('|');
-    data.productionServers = data.productionServers.split('|');
-    data.notificationList = data.notificationList.split('|');
+    data.stagingServers = data.stagingServers.split(/\s*\|\s*/);
+    data.productionServers = data.productionServers.split(/\s*\|\s*/);
+    data.notificationList  = data.notificationList ?
+        data.notificationList.split(/\s*\|\s*/) :
+        [];
 
     return data;
 }
@@ -258,9 +260,8 @@ module.exports = {
     },
     create : function (req, res) {
         var data = req.body;
-        data.stagingServers = data.stagingServers.split('|');
-        data.productionServers = data.productionServers.split('|');
-        data.notificationList = data.notificationList.split('|');
+
+        dealData(data);
 
         var createProject = function () {
             return Project.create({
@@ -322,8 +323,7 @@ module.exports = {
             if (project !== undefined) {
                 res.send({
                     err : {
-                        parameter : ['title'],
-                        msg : [Msg.REPO_ALREADY_EXISTS]
+                        projectTitle: Msg.REPO_ALREADY_EXISTS
                     }
                 }, StatusCode.RESOURCE_DUPLICATED);
             } else {

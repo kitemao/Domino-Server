@@ -30,8 +30,7 @@ module.exports = {
             required : true
         },
         notificationList : {
-            type : 'ARRAY',
-            required : true
+            type : 'ARRAY'
         },
         creater : 'STRING',
         managers : 'ARRAY',
@@ -40,6 +39,7 @@ module.exports = {
         lastStagingBuild : 'STRING',
         lastProdctuionBuild : 'STRING'
     },
+
     afterDestroy : function (projects, next) {
         var deffers = [];
 
