@@ -13,7 +13,7 @@ module.exports = {
         if (title) {
             queryTaskAsync = Task.find({
                 projectTitle : title
-            }).sort('startTime DESC')
+            }).sort('_id DESC')
                 .paginate({
                     page: Math.max(page, 1),
                     limit: pageSize
