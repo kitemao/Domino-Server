@@ -1,0 +1,3 @@
+[submodule "OathKeeper"]
+	path = OathKeeper
+	url = git@github.com:wandoulabs/OathKeeper.git

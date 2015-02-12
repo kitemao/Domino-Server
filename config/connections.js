@@ -1,3 +1,4 @@
+var config = require('../OathKeeper/frontend/mysql-domino.json');
 module.exports.connections = {
     mongo : {
         adapter : 'sails-mongo',
@@ -9,11 +10,12 @@ module.exports.connections = {
     },
     someMysqlServer: {
         adapter: 'sails-mysql',
-        host: 'YOUR_MYSQL_SERVER_HOSTNAME_OR_IP_ADDRESS',
-        user: 'YOUR_MYSQL_USER',
-        password: 'YOUR_MYSQL_PASSWORD',
-        database: 'YOUR_MYSQL_DB'
-    }
+        host: config.host,
+        port: config.port,
+        user: config.username,
+        password: config.password,
+        database: config.database
+    },
 };
 
 
