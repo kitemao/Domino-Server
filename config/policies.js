@@ -36,8 +36,7 @@ module.exports.policies = {
     },
 
     AccountController: {
-        '*': 'sessionAuth',
-        'auth': []
+        '*': 'sessionAuth'
     }
 };
 

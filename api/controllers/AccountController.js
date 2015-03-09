@@ -1,53 +1,48 @@
-var gplusSignIn = require('../../thirdparty/google/auth');
-var authCfg     = require('../../permission/auth');
-var _           = require('underscore');
+var authCfg    = require('../../permission/auth');
+var StatusCode = require('../../utils/StatusCodeMapping');
+var Msg        = require('../../utils/MsgMapping');
 
 module.exports = {
     auth: function  (req, res) {
-        var tokens = req.body;
+        var user = req.session.user;
 
-        // 服务器访问google oAuth 经常抽风，遂先去掉，从前端获取
-        // gplusSignIn.authAsync(req.body).then(function (user) {
+        if (!user) {
+            return res.send({
+                msg: Msg.NO_LOGIN,
+                target: 'account auth'
+            }, 500);
+        }
 
-            // var accountName = _.find(user.emails, function (e) {
-            //     return e.type === 'account';
-            // }).value.split('@')[0];
+        var accountName = user.id;
+        var displayName = user.name;
 
-        var accountName = req.body.accountName;
-        var displayName = req.body.displayName;
-
-        req.session.authenticated = true;
-        req.session.accountName = accountName;
+        req.session.accountName = user.id;
 
         // 处理用户的权限
         var userAuth = {};
         _.each(authCfg, function (auth, authKey) {
-
             auth = _.isArray(auth) ?  auth : auth[process.env.NODE_ENV];
 
             if (_.contains(auth, accountName)) {
-
                 userAuth[authKey] = true;
             }
         });
 
+        var body = _.extend({
+            accountName: accountName,
+            displayName: displayName,
+            auth: userAuth
+        }, user);
+
         res.send({
-            body: {
-                accountName: accountName,
-                displayName: displayName,
-                auth: userAuth
-            }
+            body: body
         }, 200);
 
         User.addAsync({
             accountName: accountName,
             displayName: displayName
         });
-        // }, function (err) {
-        //     res.send({
-        //         msg: err
-        //     }, 403);
-        // });
+
     },
 
     find: function (req, res) {

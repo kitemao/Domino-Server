@@ -13,7 +13,6 @@ module.exports = {
         'miaojian',
         'wangye.zhao',
         'lixiaomeng',
-        '',
         'hanjiyun',
         'wangxiao',
         'gaohailang',

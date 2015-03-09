@@ -32,7 +32,7 @@ module.exports = {
         projectTitle: 'STRING',
         title: 'STRING',
         entrance: 'STRING',
-        log: 'STRING',
+        //log: 'STRING',
         branch: 'STRING',
         reviewStatus: {
             type: 'INTEGER',

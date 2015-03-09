@@ -52,6 +52,20 @@ module.exports = {
         }
     },
 
+    getLog: function (res, req) {
+        var taskId = res.param('taskId');
+        console.log('taskId:', taskId);
+        TaskLog.findOne({ taskId: taskId }).then(function (log) {
+            req.json({
+                body: log ? log.log : ''
+            }, StatusCode.SUCCESS);
+        }, function (err) {
+            req.json({
+                body: err,
+            }, StatusCode.INTERNAL_ERROR);
+        });
+    },
+
     review: function (res, req) {
         console.log(res.param);
         var id = res.param('id');

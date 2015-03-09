@@ -4,6 +4,11 @@ module.exports.routes = {
         action : 'find'
     },
 
+    'get /account/auth': {
+        controller : 'account',
+        action : 'auth'
+    },
+
     'get /project/:title/trigger/:evt': {
         controller : 'project',
         action : 'trigger'
@@ -47,6 +52,12 @@ module.exports.routes = {
         controller : 'task',
         action : 'find'
     },
+
+    'get /task/:taskId/log' : {
+        controller : 'task',
+        action : 'getLog'
+    },
+
     'put /task/review' : {
         controller : 'task',
         action : 'review'

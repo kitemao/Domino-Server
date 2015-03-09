@@ -90,16 +90,9 @@ module.exports = {
                         progress = progress.replace(/<span style="display: none;">([\s\S]*?)<\/span>/gi, '');
                         log += progress;
 
-                        Task.update({
-                            id: task.id
-                        }, {
-                            log: log
-                        }).then(function (task) {
-                            return;
-                        });
-
                         sails.io.sockets.emit('task.progress', {
                             id: task.id,
+                            projectTitle: task.projectTitle,
                             progress: progress
                         });
                     }).then(function () {
@@ -111,9 +104,21 @@ module.exports = {
                                 endTime: new Date(),
                                 status: res.body.result === 'SUCCESS' ? Task.enums.STATUS.SUCCESS : Task.enums.STATUS.FAILED,
                                 reviewStatus: res.body.result === 'SUCCESS' ? Task.enums.REVIEWSTATUS.UNCHECK : Task.enums.REVIEWSTATUS.WRONG,
-                                log: log
                             }).then(function (task) {
                                 return;
+                            });
+
+                            TaskLog.findOne({ taskId: task.id }).then(function (logs) {
+                                if (logs !== undefined) {
+                                    sails.log.error('task:' + task.id + '-log has exist');
+                                }
+                                else {
+                                    TaskLog.create({taskId: task.id, log: log}).then(function () {
+                                        sails.log.info('task:' + task.id + ' log store success');
+                                    }, function (err) {
+                                        sails.log.error('Store log error: ' + err);
+                                    });
+                                }
                             });
                         });
                     });

@@ -16,6 +16,9 @@ module.exports.connections = {
         password: config.password,
         database: config.database
     },
+    disk: {
+        adapter: 'sails-disk'
+    }
 };
 
 

@@ -3,6 +3,8 @@ module.exports = {
 
     NOT_FOUND: 404,
 
+    NO_LOGIN: 401,
+
     INTERNAL_ERROR: 500,
 
     // Custom status code
